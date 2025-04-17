@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Atom - Quantum Physics Explorer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="intro-overlay" id="intro-overlay">
+        <div class="intro-content">
+            <h2>Welcome to Quantum Physics Explorer</h2>
+            <p>This interactive platform allows you to visualize and explore quantum phenomena through 3D simulations.</p>
+            
+            <h3>Instructions:</h3>
+            <ul class="instructions-list">
+                <li><strong>Navigation:</strong> Click and drag to rotate the atom model</li>
+                <li><strong>Zoom:</strong> Use the mouse wheel to zoom in and out</li>
+                <li><strong>Explore:</strong> Use the navigation buttons to switch between different quantum phenomena</li>
+                <li><strong>Scale:</strong> The scale indicator shows the current level of detail</li>
+            </ul>
+            
+            <p>This model visualizes a Carbon-12 atom with 6 protons, 6 neutrons, and 6 electrons in their quantum shells.</p>
+            
+            <div class="toggle-container">
+                <label class="switch">
+                    <input type="checkbox" id="overlay-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Start Exploring</span>
+            </div>
+            
+            <p class="tip"><small>Tip: Press ESC to close this overlay at any time</small></p>
+        </div>
+    </div>
+
+    <div class="title">Carbon Atom (C-12)</div>
+    <div class="navigation">
+        <button class="nav-button" id="btn-entanglement">Quantum Entanglement</button>
+        <button class="nav-button" id="btn-superposition">Quantum Superposition</button>
+        <button class="nav-button" id="btn-ydse">Double Slit Experiment</button>
+    </div>
+    
+    <div class="info-panel">
+        <h3>Carbon Atom Model</h3>
+        <p>Carbon-12 has 6 protons, 6 neutrons, and 6 electrons.</p>
+        <p>Electron configuration: 1s² 2s² 2p²</p>
+        <p>Use mouse wheel to zoom, click and drag to rotate.</p>
+    </div>
+    
+    <div class="zoom-indicator">Zoom Level: <span id="zoom-level">1x</span></div>
+    
+    <div class="scale-indicator">
+        <h3>Scale Reference</h3>
+        <div id="scale-text">1:10⁻¹⁰ m (1 Å)</div>
+        <div class="scale-bar"></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

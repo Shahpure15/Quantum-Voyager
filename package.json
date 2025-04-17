@@ -1,0 +1,17 @@
+{
+    "name": "quantum-voyager",
+    "version": "1.0.0",
+    "description": "Interstellar themed quantum simulation suite.",
+    "main": "index.html",
+    "scripts": {
+      "start": "live-server"
+    },
+    "keywords": [
+      "quantum",
+      "simulation",
+      "threejs"
+    ],
+    "author": "Your Name",
+    "license": "ISC"
+  }
+  
