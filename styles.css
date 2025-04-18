@@ -14,6 +14,20 @@ canvas {
   width: 100%;
   height: 100%;
 }
+.intro-logo{
+  display: flex;
+  align-items: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  justify-content: center;
+  text-align: center;
+}
+.intro-logo img {
+  width: 95px;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
 
 .info-panel {
   position: absolute;
