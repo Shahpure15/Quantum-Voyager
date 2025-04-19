@@ -2,13 +2,228 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Young's Double Slit Experiment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Young's Double Slit Experiment - Quantum Physics Explorer</title>
   <link rel="stylesheet" href="ydse.css">
-  <!-- CDN Library for Three.js -->
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dat.gui/build/dat.gui.min.js"></script>
 </head>
 <body>
-  <div id="scene-container"></div>
+  <!-- Main container with split layout -->
+  <div class="container">
+    <!-- Left side: Simulation -->
+    <div class="simulation-container">
+      <div id="scene-container"></div>
+      <div class="simulation-overlay">
+        <h1>Young's Double Slit Experiment</h1>
+        <div class="experiment-status">Status: <span id="experiment-status">Running</span></div>
+      </div>
+    </div>
+    
+    <!-- Right side: Controls and Education -->
+    <div class="sidebar">
+      <!-- Tabs for navigation -->
+      <div class="tab-navigation">
+        <button class="tab-button active" data-tab="controls">Controls</button>
+        <button class="tab-button" data-tab="theory">Theory</button>
+        <button class="tab-button" data-tab="data">Data</button>
+      </div>
+      
+      <!-- Controls panel -->
+      <div class="tab-content active" id="controls-tab">
+        <h2>Experiment Controls</h2>
+        <div class="control-group">
+          <h3>Emission Settings</h3>
+          <div class="control-item">
+            <label for="particle-type">Particle Type:</label>
+            <select id="particle-type">
+              <option value="photon">Photons (Light)</option>
+              <option value="electron">Electrons</option>
+            </select>
+          </div>
+          <div class="control-item">
+            <label for="emission-rate">Emission Rate:</label>
+            <input type="range" id="emission-rate" min="1" max="100" value="50">
+            <span id="emission-rate-value">50 particles/s</span>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Slit Configuration</h3>
+          <div class="control-item">
+            <label for="slit-count">Number of Slits:</label>
+            <div class="button-group">
+              <button id="slit-1" class="slit-button">Single</button>
+              <button id="slit-2" class="slit-button active">Double</button>
+              <button id="slit-3" class="slit-button">Multiple</button>
+            </div>
+          </div>
+          <div class="control-item">
+            <label for="slit-width">Slit Width:</label>
+            <input type="range" id="slit-width" min="1" max="20" value="5">
+            <span id="slit-width-value">5 nm</span>
+          </div>
+          <div class="control-item">
+            <label for="slit-distance">Distance Between Slits:</label>
+            <input type="range" id="slit-distance" min="5" max="50" value="20">
+            <span id="slit-distance-value">20 nm</span>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Detection Settings</h3>
+          <div class="control-item">
+            <label for="screen-distance">Screen Distance:</label>
+            <input type="range" id="screen-distance" min="50" max="200" value="100">
+            <span id="screen-distance-value">100 nm</span>
+          </div>
+          <div class="control-item">
+            <label>Detection Mode:</label>
+            <div class="button-group">
+              <button id="mode-pattern" class="mode-button active">Pattern</button>
+              <button id="mode-particles" class="mode-button">Particles</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Special Features</h3>
+          <div class="control-item">
+            <label for="observe-path">Observe Particle Path:</label>
+            <label class="switch">
+              <input type="checkbox" id="observe-path">
+              <span class="slider"></span>
+            </label>
+            <div class="tooltip">
+              Turning this on will measure which slit the particle passes through,
+              affecting the quantum behavior!
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Theory panel -->
+      <div class="tab-content" id="theory-tab">
+        <h2>The Science Behind YDSE</h2>
+        <div class="theory-content">
+          <div class="accordion">
+            <div class="accordion-item">
+              <div class="accordion-header">Wave-Particle Duality</div>
+              <div class="accordion-content">
+                <p>Quantum particles like photons and electrons exhibit both wave-like and particle-like properties. In this experiment:</p>
+                <ul>
+                  <li>Particles travel individually (particle behavior)</li>
+                  <li>But create an interference pattern over time (wave behavior)</li>
+                </ul>
+                <p>This demonstrates that matter and energy have complementary properties at the quantum level.</p>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <div class="accordion-header">Interference Pattern</div>
+              <div class="accordion-content">
+                <p>The pattern on the screen forms because:</p>
+                <ul>
+                  <li>Each particle passes through both slits simultaneously as a wave</li>
+                  <li>The waves interfere constructively (bright bands) and destructively (dark bands)</li>
+                  <li>The probability of finding a particle at any point depends on this interference</li>
+                </ul>
+                <div class="formula">
+                  <p>The position of bright fringes is given by:</p>
+                  <p>y<sub>m</sub> = m × λL/d</p>
+                  <p>Where:</p>
+                  <ul>
+                    <li>m = order of fringe (0, ±1, ±2, ...)</li>
+                    <li>λ = wavelength</li>
+                    <li>L = distance to screen</li>
+                    <li>d = slit separation</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <div class="accordion-header">Quantum Measurement</div>
+              <div class="accordion-content">
+                <p>When you observe which slit a particle passes through:</p>
+                <ul>
+                  <li>The wave function "collapses" into a definite path</li>
+                  <li>The interference pattern disappears</li>
+                  <li>You get two separate distributions on the screen</li>
+                </ul>
+                <p>This demonstrates the observer effect in quantum mechanics and is related to Heisenberg's Uncertainty Principle.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Data panel -->
+      <div class="tab-content" id="data-tab">
+        <h2>Experimental Data</h2>
+        <div class="data-display">
+          <div class="property-box">
+            <h3>Current Properties</h3>
+            <table class="properties-table">
+              <tr>
+                <td>Wavelength (λ):</td>
+                <td id="data-wavelength">650 nm</td>
+              </tr>
+              <tr>
+                <td>Slit Width (a):</td>
+                <td id="data-slit-width">5 nm</td>
+              </tr>
+              <tr>
+                <td>Slit Separation (d):</td>
+                <td id="data-slit-separation">20 nm</td>
+              </tr>
+              <tr>
+                <td>Screen Distance (L):</td>
+                <td id="data-screen-distance">100 nm</td>
+              </tr>
+              <tr>
+                <td>Fringe Spacing:</td>
+                <td id="data-fringe-spacing">3.25 nm</td>
+              </tr>
+            </table>
+          </div>
+          
+          <div class="condition-box">
+            <h3>Experiment Conditions</h3>
+            <div class="condition-item success">
+              <span class="condition-icon">✓</span>
+              <span class="condition-text">Slit width appropriate for diffraction</span>
+            </div>
+            <div class="condition-item success">
+              <span class="condition-icon">✓</span>
+              <span class="condition-text">Slit separation sufficient for interference</span>
+            </div>
+            <div class="condition-item success">
+              <span class="condition-icon">✓</span>
+              <span class="condition-text">Screen distance allows pattern formation</span>
+            </div>
+            <div class="condition-item warning">
+              <span class="condition-icon">!</span>
+              <span class="condition-text">Emission rate may be too high for clear observation</span>
+            </div>
+          </div>
+          
+          <div class="graph-container">
+            <h3>Intensity Distribution</h3>
+            <div id="intensity-graph"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <a href="../index.html" class="home-button">Return to Main Menu</a>
+  </div>
+
+  <!-- Scripts -->
   <script src="../common/starfield.js"></script>
   <script src="ydse.js"></script>
 </body>
