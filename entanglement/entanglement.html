@@ -1,19 +1,896 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Quantum Entanglement</title>
-  <link rel="stylesheet" href="entanglement.css">
-  <!-- CDN Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dat.gui/build/dat.gui.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/gsap.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Entanglement Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #canvas-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(34, 34, 34, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            width: 300px;
+            z-index: 100;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+        .slider {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .value-display {
+            width: 40px;
+            text-align: center;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            max-width: 250px;
+            word-wrap: break-word;
+            white-space: normal;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: fixed;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+        #quantum-state {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: white;
+            font-size: 14px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 300px;
+        }
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(50, 50, 50, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            width: 300px;
+            z-index: 100;
+            font-size: 14px;
+        }
+        #info-panel h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        #correlation-stats {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            color: white;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 300px;
+            z-index: 100;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider-toggle {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider-toggle:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider-toggle {
+            background-color: #2196F3;
+        }
+        input:checked + .slider-toggle:before {
+            transform: translateX(26px);
+        }
+        .property-label {
+            position: absolute;
+            color: white;
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @media (max-width: 768px) {
+            #controls {
+                width: 90%;
+                bottom: 10px;
+                left: 5%;
+                padding: 10px;
+            }
+            #info-panel {
+                width: 90%;
+                top: auto;
+                bottom: 10px;
+                right: 5%;
+            }
+            #title, #quantum-state, #correlation-stats {
+                font-size: 12px;
+            }
+        }
+
+        body.light-mode {
+            background-color: white;
+            color: black;
+        }
+
+        body.light-mode #controls {
+            background: rgba(240, 240, 240, 0.9);
+            color: black;
+        }
+
+        body.light-mode #info-panel {
+            background: rgba(220, 220, 220, 0.9);
+            color: black;
+        }
+
+        body.light-mode .tooltip .tooltiptext {
+            background-color: #ddd;
+            color: #333;
+        }
+    </style>
 </head>
-<body>
-  <div id="scene-container"></div>
-  <button id="reset-btn">Reset State</button>
-  <!-- Common starfield for ambiance -->
-  <script src="../common/starfield.js"></script>
-  <script src="entanglement.js"></script>
+<body class="bg-black">
+    <div id="canvas-container"></div>
+    <div id="title">Quantum Entanglement Simulation</div>
+    <div id="quantum-state">Quantum State: |Ψ⟩ = (|↑↓⟩ - |↓↑⟩)/√2 (Singlet, Z-axis)</div>
+    <div id="correlation-stats">Spin Correlations: A↑B↓: 0, A↓B↑: 0</div>
+    
+    <div id="controls">
+        <div class="mb-4">
+            <h3 class="text-lg font-bold mb-2">Electron A Controls</h3>
+            
+            <div class="control-group">
+                <label class="control-label tooltip">
+                    Spin
+                    <span class="tooltiptext">Quantum spin of the electron (up or down along the chosen axis). Entangled particles have opposite spins. This is a simplification; spins can be measured along any axis.</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" min="0" max="1" step="1" value="0" class="slider" id="spinA">
+                    <span class="value-display" id="spinAValue">Down</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label tooltip">
+                    Measurement Axis
+                    <span class="tooltiptext">Axis along which spin is measured (Z or X). Entangled spins are correlated based on the axis choice.</span>
+                </label>
+                <div class="flex items-center">
+                    <label class="mr-2">Z-axis</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="axisA">
+                        <span class="slider-toggle"></span>
+                    </label>
+                    <label class="ml-2">X-axis</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label tooltip">
+                    Energy
+                    <span class="tooltiptext">Energy of Electron A. Entangled particles conserve total energy (sum = 6). Higher energy increases brightness.</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" min="1" max="5" step="0.1" value="3" class="slider" id="energyA">
+                    <span class="value-display" id="energyAValue">3.0</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label tooltip">
+                    Momentum
+                    <span class="tooltiptext">Momentum of Electron A. Entangled particles have opposite momenta (total = 0), with slight quantum fluctuations.</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" min="0" max="2" step="0.1" value="0.5" class="slider" id="momentumA">
+                    <span class="value-display" id="momentumAValue">0.5</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label tooltip">
+                    Phase Angle
+                    <span class="tooltiptext">Phase relationship between entangled electrons, affecting their wavefunction.</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" min="0" max="360" step="1" value="0" class="slider" id="phaseA">
+                    <span class="value-display" id="phaseAValue">0°</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-600 pt-4">
+            <h3 class="text-lg font-bold mb-2">System Controls</h3>
+            <div class="control-group">
+                <label class="control-label tooltip">
+                    Bell State
+                    <span class="tooltiptext">Choose the entangled state: Singlet (|↑↓⟩ - |↓↑⟩)/√2 or Triplet (|↑↓⟩ + |↓↑⟩)/√2.</span>
+                </label>
+                <select id="bellState" class="bg-gray-800 text-white rounded py-1 px-2">
+                    <option value="singlet">Singlet</option>
+                    <option value="triplet">Triplet</option>
+                </select>
+            </div>
+            <button id="resetBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded">Reset Simulation</button>
+            <button id="entangleBtn" class="bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded ml-2">Toggle Entanglement</button>
+            <button id="pauseBtn" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded ml-2">Pause</button>
+        </div>
+    </div>
+
+    <div id="info-panel">
+        <h3>About Quantum Entanglement</h3>
+        <p>Quantum entanglement is a phenomenon where two particles share a special connection, so that measuring one instantly determines properties of the other, no matter the distance. This simulation visualizes two entangled electrons with correlated spin, momentum, energy, and phase.</p>
+        <p><b>Simplifications:</b> Spins are shown as up/down, but can be measured along any axis. Energy and momentum are conserved in entangled pairs. The visualization uses classical analogs (e.g., brightness, motion) for quantum properties.</p>
+    </div>
+
+    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white py-1 px-3 rounded">Hide Controls</button>
+    <button id="themeToggleBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-3 rounded ml-2">Light Mode</button>
+
+    <script>
+        // Initialize Three.js scene
+        const container = document.getElementById('canvas-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        // Create scene
+        const scene = new THREE.Scene();
+        
+        // Create camera
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        camera.position.z = 10;
+        camera.position.y = 2;
+        
+        // Create renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x000000);
+        container.appendChild(renderer.domElement);
+        
+        // Add orbit controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        
+        // Add stars background
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.05,
+            transparent: true
+        });
+        
+        const starsVertices = [];
+        for (let i = 0; i < 5000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starsVertices.push(x, y, z);
+        }
+        
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(stars);
+        
+        // Create electrons
+        const electronGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+        
+        // Electron A
+        const electronAMaterial = new THREE.MeshPhongMaterial({
+            color: 0x3498db,
+            emissive: 0x3498db,
+            emissiveIntensity: 0.6,
+            shininess: 30
+        });
+        const electronA = new THREE.Mesh(electronGeometry, electronAMaterial);
+        electronA.position.x = -2;
+        scene.add(electronA);
+        
+        // Electron B
+        const electronBMaterial = new THREE.MeshPhongMaterial({
+            color: 0xe74c3c,
+            emissive: 0xe74c3c,
+            emissiveIntensity: 0.6,
+            shininess: 30
+        });
+        const electronB = new THREE.Mesh(electronGeometry, electronBMaterial);
+        electronB.position.x = 2;
+        scene.add(electronB);
+        
+        // Add spin arrows
+        const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const arrowGeometry = new THREE.ConeGeometry(0.1, 0.5, 4);
+        
+        // Spin arrow for Electron A (initially down)
+        const spinArrowA = new THREE.Mesh(arrowGeometry, arrowMaterial);
+        spinArrowA.position.y = -0.8;
+        spinArrowA.rotation.x = Math.PI;
+        electronA.add(spinArrowA);
+        
+        // Spin arrow for Electron B (initially up)
+        const spinArrowB = new THREE.Mesh(arrowGeometry, arrowMaterial);
+        spinArrowB.position.y = 0.8;
+        spinArrowB.rotation.x = 0;
+        electronB.add(spinArrowB);
+        
+        // Add measurement axis indicators
+        const createAxisIndicator = (electron, color) => {
+            const ringGeometry = new THREE.TorusGeometry(0.7, 0.05, 16, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: 0.7
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            electron.add(ring);
+            return ring;
+        };
+        
+        const axisRingA = createAxisIndicator(electronA, 0x3498db);
+        const axisRingB = createAxisIndicator(electronB, 0xe74c3c);
+        
+        // Add phase indicators (waveforms)
+        const phaseWaveA = new THREE.Object3D();
+        const phaseWaveB = new THREE.Object3D();
+        electronA.add(phaseWaveA);
+        electronB.add(phaseWaveB);
+        
+        const createWaveform = (parent) => {
+            const group = new THREE.Group();
+            
+            for (let i = 0; i < 3; i++) {
+                const radius = 0.8 + i * 0.3;
+                const segments = 32;
+                const geometry = new THREE.BufferGeometry();
+                const material = new THREE.LineBasicMaterial({ 
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.3 - i * 0.1
+                });
+                
+                const vertices = [];
+                for (let j = 0; j <= segments; j++) {
+                    const theta = (j / segments) * Math.PI * 2;
+                    vertices.push(
+                        Math.cos(theta) * radius,
+                        Math.sin(theta) * radius,
+                        0
+                    );
+                }
+                
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                const waveCircle = new THREE.Line(geometry, material);
+                waveCircle.rotation.x = Math.PI / 2;
+                group.add(waveCircle);
+            }
+            
+            parent.add(group);
+            return group;
+        };
+        
+        const waveformA = createWaveform(phaseWaveA);
+        const waveformB = createWaveform(phaseWaveB);
+        
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        
+        // Add connection line to show entanglement
+        const lineMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.5
+        });
+        const lineGeometry = new THREE.BufferGeometry();
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        scene.add(line);
+        
+        // Update connection line
+        const updateConnectionLine = () => {
+            const points = [
+                electronA.position.x, electronA.position.y, electronA.position.z,
+                electronB.position.x, electronB.position.y, electronB.position.z
+            ];
+            lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+        };
+        updateConnectionLine();
+        
+        // Create property labels for electrons
+        const createPropertyLabel = (electron, text, position) => {
+            const label = document.createElement('div');
+            label.className = 'property-label';
+            label.textContent = text;
+            label.style.top = '0';
+            label.style.left = '0';
+            document.body.appendChild(label);
+            
+            return {
+                element: label,
+                update: () => {
+                    const vector = new THREE.Vector3();
+                    electron.getWorldPosition(vector);
+                    vector.project(camera);
+                    
+                    const x = (vector.x * 0.5 + 0.5) * container.clientWidth;
+                    const y = (-(vector.y * 0.5) + 0.5) * container.clientHeight;
+                    
+                    label.style.transform = `translate(${x + position.x}px, ${y + position.y}px)`;
+                }
+            };
+        };
+        
+        const electronALabels = {
+            spin: createPropertyLabel(electronA, 'Spin: Down', {x: 30, y: -20}),
+            axis: createPropertyLabel(electronA, 'Axis: Z', {x: 30, y: 0}),
+            energy: createPropertyLabel(electronA, 'Energy: 3.0', {x: 30, y: 20}),
+            momentum: createPropertyLabel(electronA, 'Momentum: 0.5', {x: 30, y: 40}),
+            phase: createPropertyLabel(electronA, 'Phase: 0°', {x: 30, y: 60})
+        };
+        
+        const electronBLabels = {
+            spin: createPropertyLabel(electronB, 'Spin: Up', {x: 30, y: -20}),
+            axis: createPropertyLabel(electronB, 'Axis: Z', {x: 30, y: 0}),
+            energy: createPropertyLabel(electronB, 'Energy: 3.0', {x: 30, y: 20}),
+            momentum: createPropertyLabel(electronB, 'Momentum: 0.5', {x: 30, y: 40}),
+            phase: createPropertyLabel(electronB, 'Phase: 180°', {x: 30, y: 60})
+        };
+        
+        // Animation and state variables
+        let time = 0;
+        let isEntangled = true;
+        let isPaused = false;
+        let electronAVelocity = new THREE.Vector3();
+        let electronBVelocity = new THREE.Vector3();
+        let bellState = 'singlet';
+        let correlationStats = { AUpBDown: 0, ADownBUp: 0 };
+        
+        // Calculate visible area boundaries
+        const calculateBoundaries = () => {
+            const frustum = new THREE.Frustum();
+            const projectionMatrix = new THREE.Matrix4().multiplyMatrices(
+                camera.projectionMatrix,
+                camera.matrixWorldInverse
+            );
+            frustum.setFromProjectionMatrix(projectionMatrix);
+            
+            return {
+                minX: -8,
+                maxX: 8,
+                minY: -5,
+                maxY: 5,
+                minZ: -8,
+                maxZ: 8
+            };
+        };
+        
+        // Update quantum state display
+        const updateQuantumStateDisplay = () => {
+            const axis = document.getElementById('axisA').checked ? 'X' : 'Z';
+            let stateText = '';
+            if (isEntangled) {
+                if (bellState === 'singlet') {
+                    stateText = `|Ψ⟩ = (|↑↓⟩ - |↓↑⟩)/√2 (Singlet, ${axis}-axis)`;
+                } else {
+                    stateText = `|Ψ⟩ = (|↑↓⟩ + |↓↑⟩)/√2 (Triplet, ${axis}-axis)`;
+                }
+            } else {
+                stateText = `|Ψ⟩ = |↑⟩⊗|↓⟩ (Not Entangled, ${axis}-axis)`;
+            }
+            document.getElementById('quantum-state').textContent = `Quantum State: ${stateText}`;
+        };
+        
+        // Update correlation stats
+        const updateCorrelationStats = (spinA, spinB) => {
+            if (spinA === 1 && spinB === 0) correlationStats.AUpBDown++;
+            if (spinA === 0 && spinB === 1) correlationStats.ADownBUp++;
+            document.getElementById('correlation-stats').textContent = 
+                `Spin Correlations: A↑B↓: ${correlationStats.AUpBDown}, A↓B↑: ${correlationStats.ADownBUp}`;
+        };
+        
+        // UI Controls
+        document.getElementById('spinA').addEventListener('input', function() {
+            const spinValue = parseInt(this.value);
+            const spinText = spinValue ? 'Up' : 'Down';
+            document.getElementById('spinAValue').textContent = spinText;
+            
+            // Update spin arrow for Electron A
+            spinArrowA.position.y = spinValue ? 0.8 : -0.8;
+            spinArrowA.rotation.x = spinValue ? 0 : Math.PI;
+            
+            // Update label
+            electronALabels.spin.element.textContent = `Spin: ${spinText}`;
+            
+            // Entangled response for Electron B
+            if (isEntangled) {
+                const spinBValue = bellState === 'singlet' ? 1 - spinValue : spinValue;
+                const spinBText = spinBValue ? 'Up' : 'Down';
+                
+                spinArrowB.position.y = spinBValue ? 0.8 : -0.8;
+                spinArrowB.rotation.x = spinBValue ? 0 : Math.PI;
+                
+                electronBLabels.spin.element.textContent = `Spin: ${spinBText}`;
+                updateCorrelationStats(spinValue, spinBValue);
+            }
+        });
+        
+        document.getElementById('axisA').addEventListener('change', function() {
+            const isXAxis = this.checked;
+            const axisText = isXAxis ? 'X' : 'Z';
+            
+            // Update axis for Electron A
+            axisRingA.rotation.z = isXAxis ? 0 : Math.PI / 2;
+            
+            // Update label
+            electronALabels.axis.element.textContent = `Axis: ${axisText}`;
+            
+            // Entangled response for Electron B
+            if (isEntangled) {
+                axisRingB.rotation.z = isXAxis ? 0 : Math.PI / 2;
+                electronBLabels.axis.element.textContent = `Axis: ${axisText}`;
+            }
+            
+            updateQuantumStateDisplay();
+        });
+        
+        document.getElementById('energyA').addEventListener('input', function() {
+            const energyValue = parseFloat(this.value);
+            document.getElementById('energyAValue').textContent = energyValue.toFixed(1);
+            
+            // Update energy for Electron A
+            electronAMaterial.emissiveIntensity = energyValue / 5;
+            
+            // Update label
+            electronALabels.energy.element.textContent = `Energy: ${energyValue.toFixed(1)}`;
+            
+            // Entangled response for Electron B
+            if (isEntangled) {
+                const energyBValue = 6 - energyValue;
+                electronBMaterial.emissiveIntensity = energyBValue / 5;
+                electronBLabels.energy.element.textContent = `Energy: ${energyBValue.toFixed(1)}`;
+            }
+        });
+        
+        document.getElementById('momentumA').addEventListener('input', function() {
+            const momentumValue = parseFloat(this.value);
+            document.getElementById('momentumAValue').textContent = momentumValue.toFixed(1);
+            
+            // Update label
+            electronALabels.momentum.element.textContent = `Momentum: ${momentumValue.toFixed(1)}`;
+            
+            // Set random direction for velocity with quantum fluctuation
+            if (momentumValue > 0 && electronAVelocity.length() === 0) {
+                electronAVelocity.set(
+                    (Math.random() - 0.5) * 0.1 + (Math.random() - 0.5) * 0.01,
+                    (Math.random() - 0.5) * 0.1 + (Math.random() - 0.5) * 0.01,
+                    (Math.random() - 0.5) * 0.1 + (Math.random() - 0.5) * 0.01
+                ).normalize().multiplyScalar(momentumValue * 0.1);
+                
+                // Entangled response for Electron B
+                if (isEntangled) {
+                    electronBVelocity.copy(electronAVelocity).multiplyScalar(-1);
+                    electronBLabels.momentum.element.textContent = `Momentum: ${momentumValue.toFixed(1)}`;
+                }
+            } else if (momentumValue === 0) {
+                electronAVelocity.set(0, 0, 0);
+                
+                // Entangled response for Electron B
+                if (isEntangled) {
+                    electronBVelocity.set(0, 0, 0);
+                    electronBLabels.momentum.element.textContent = `Momentum: 0.0`;
+                }
+            } else {
+                electronAVelocity.normalize().multiplyScalar(momentumValue * 0.1);
+                
+                // Entangled response for Electron B
+                if (isEntangled) {
+                    electronBVelocity.copy(electronAVelocity).multiplyScalar(-1);
+                    electronBLabels.momentum.element.textContent = `Momentum: ${momentumValue.toFixed(1)}`;
+                }
+            }
+        });
+        
+        document.getElementById('phaseA').addEventListener('input', function() {
+            const phaseValue = parseInt(this.value);
+            document.getElementById('phaseAValue').textContent = phaseValue + '°';
+            
+            // Update phase for Electron A
+            phaseWaveA.rotation.y = (phaseValue * Math.PI) / 180;
+            
+            // Update label
+            electronALabels.phase.element.textContent = `Phase: ${phaseValue}°`;
+            
+            // Entangled response for Electron B
+            if (isEntangled) {
+                const oppositePhase = (phaseValue + 180) % 360;
+                phaseWaveB.rotation.y = (oppositePhase * Math.PI) / 180;
+                electronBLabels.phase.element.textContent = `Phase: ${oppositePhase}°`;
+            }
+        });
+        
+        document.getElementById('bellState').addEventListener('change', function() {
+            bellState = this.value;
+            updateQuantumStateDisplay();
+            // Trigger spin update to reflect new correlations
+            document.getElementById('spinA').dispatchEvent(new Event('input'));
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            // Reset all controls to initial values
+            document.getElementById('spinA').value = 0;
+            document.getElementById('spinAValue').textContent = 'Down';
+            document.getElementById('axisA').checked = false;
+            document.getElementById('energyA').value = 3;
+            document.getElementById('energyAValue').textContent = '3.0';
+            document.getElementById('momentumA').value = 0.5;
+            document.getElementById('momentumAValue').textContent = '0.5';
+            document.getElementById('phaseA').value = 0;
+            document.getElementById('phaseAValue').textContent = '0°';
+            document.getElementById('bellState').value = 'singlet';
+            bellState = 'singlet';
+            correlationStats = { AUpBDown: 0, ADownBUp: 0 };
+            
+            // Reset electron positions
+            electronA.position.set(-2, 0, 0);
+            electronB.position.set(2, 0, 0);
+            
+            // Reset velocities
+            electronAVelocity.set(
+                (Math.random() - 0.5) * 0.05,
+                (Math.random() - 0.5) * 0.05,
+                (Math.random() - 0.5) * 0.05
+            );
+            electronBVelocity.copy(electronAVelocity).multiplyScalar(-1);
+            
+            // Reset labels
+            electronALabels.spin.element.textContent = 'Spin: Down';
+            electronALabels.axis.element.textContent = 'Axis: Z';
+            electronALabels.energy.element.textContent = 'Energy: 3.0';
+            electronALabels.momentum.element.textContent = 'Momentum: 0.5';
+            electronALabels.phase.element.textContent = 'Phase: 0°';
+            
+            electronBLabels.spin.element.textContent = 'Spin: Up';
+            electronBLabels.axis.element.textContent = 'Axis: Z';
+            electronBLabels.energy.element.textContent = 'Energy: 3.0';
+            electronBLabels.momentum.element.textContent = 'Momentum: 0.5';
+            electronBLabels.phase.element.textContent = 'Phase: 180°';
+            
+            // Reset animation state
+            isEntangled = true;
+            isPaused = false;
+            document.getElementById('entangleBtn').textContent = 'Toggle Entanglement';
+            document.getElementById('pauseBtn').textContent = 'Pause';
+            line.visible = true;
+            
+            // Trigger all input events to update visuals
+            document.getElementById('spinA').dispatchEvent(new Event('input'));
+            document.getElementById('axisA').dispatchEvent(new Event('change'));
+            document.getElementById('energyA').dispatchEvent(new Event('input'));
+            document.getElementById('momentumA').dispatchEvent(new Event('input'));
+            document.getElementById('phaseA').dispatchEvent(new Event('input'));
+            updateQuantumStateDisplay();
+            updateCorrelationStats(0, 1);
+        });
+        
+        document.getElementById('entangleBtn').addEventListener('click', function() {
+            isEntangled = !isEntangled;
+            this.textContent = isEntangled ? 'Toggle Entanglement' : 'Entangle Particles';
+            
+            // Update connection line visibility
+            line.visible = isEntangled;
+            
+            // If re-entangling, sync properties
+            if (isEntangled) {
+                document.getElementById('spinA').dispatchEvent(new Event('input'));
+                document.getElementById('axisA').dispatchEvent(new Event('change'));
+                document.getElementById('energyA').dispatchEvent(new Event('input'));
+                document.getElementById('momentumA').dispatchEvent(new Event('input'));
+                document.getElementById('phaseA').dispatchEvent(new Event('input'));
+            }
+            
+            updateQuantumStateDisplay();
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', function() {
+            isPaused = !isPaused;
+            this.textContent = isPaused ? 'Play' : 'Pause';
+        });
+
+        const hideControlsBtn = document.getElementById('hideControlsBtn');
+        const controlsDiv = document.getElementById('controls');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+        hideControlsBtn.addEventListener('click', () => {
+            if (controlsDiv.style.display === 'none') {
+                controlsDiv.style.display = 'block';
+                hideControlsBtn.textContent = 'Hide Controls';
+            } else {
+                controlsDiv.style.display = 'none';
+                hideControlsBtn.textContent = 'Show Controls';
+            }
+        });
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+        });
+
+        const tooltips = document.querySelectorAll('.tooltip .tooltiptext');
+
+        tooltips.forEach(tooltip => {
+            tooltip.addEventListener('mouseover', (event) => {
+                const rect = tooltip.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    tooltip.style.left = `${window.innerWidth - rect.width - 10}px`;
+                }
+                if (rect.bottom > window.innerHeight) {
+                    tooltip.style.top = `${window.innerHeight - rect.height - 10}px`;
+                }
+            });
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isPaused) {
+                renderer.render(scene, camera);
+                return;
+            }
+            
+            time += 0.01;
+            
+            // Update electron positions based on momentum
+            electronA.position.add(electronAVelocity);
+            electronB.position.add(electronBVelocity);
+            
+            // Get current boundaries
+            const boundaries = calculateBoundaries();
+            
+            // Boundary checking with bounce
+            if (electronA.position.x < boundaries.minX || electronA.position.x > boundaries.maxX) {
+                electronAVelocity.x *= -1;
+                if (isEntangled) electronBVelocity.x *= -1;
+            }
+            if (electronA.position.y < boundaries.minY || electronA.position.y > boundaries.maxY) {
+                electronAVelocity.y *= -1;
+                if (isEntangled) electronBVelocity.y *= -1;
+            }
+            if (electronA.position.z < boundaries.minZ || electronA.position.z > boundaries.maxZ) {
+                electronAVelocity.z *= -1;
+                if (isEntangled) electronBVelocity.z *= -1;
+            }
+            
+            // Ensure electrons stay within bounds
+            electronA.position.x = Math.max(boundaries.minX, Math.min(boundaries.maxX, electronA.position.x));
+            electronA.position.y = Math.max(boundaries.minY, Math.min(boundaries.maxY, electronA.position.y));
+            electronA.position.z = Math.max(boundaries.minZ, Math.min(boundaries.maxZ, electronA.position.z));
+            
+            electronB.position.x = Math.max(boundaries.minX, Math.min(boundaries.maxX, electronB.position.x));
+            electronB.position.y = Math.max(boundaries.minY, Math.min(boundaries.maxY, electronB.position.y));
+            electronB.position.z = Math.max(boundaries.minZ, Math.min(boundaries.maxZ, electronB.position.z));
+            
+            // Rotate electrons
+            electronA.rotation.y = time;
+            electronB.rotation.y = -time;
+            
+            // Rotate stars background slowly
+            stars.rotation.y = time * 0.01;
+            
+            // Update connection line
+            updateConnectionLine();
+            
+            // Update property labels
+            Object.values(electronALabels).forEach(label => label.update());
+            Object.values(electronBLabels).forEach(label => label.update());
+            
+            // Update controls
+            controls.update();
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+        
+        // Start animation
+        animate();
+        
+        // Trigger initial state
+        document.getElementById('resetBtn').click();
+    </script>
 </body>
 </html>
