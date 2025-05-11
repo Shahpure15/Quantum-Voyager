@@ -11,3 +11,9 @@ body {
     position: relative;
   }
   
+  .h1 {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    text-align: center;
+    margin-top: 20px;
+  }

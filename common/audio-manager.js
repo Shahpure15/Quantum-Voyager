@@ -4,10 +4,10 @@ if (typeof Tone !== 'undefined') {
     
     // Background ambient loop
     const ambience = new Tone.Player({
-      url: '../assets/audio/interstellar-space.mp3',
+      url: '../assets/sounds/Interstellar.mp3',
       loop: true,
       autostart: true,
-      volume: -12
+      volume: 12
     }).toDestination();
     
     // Function to play wormhole flash effect

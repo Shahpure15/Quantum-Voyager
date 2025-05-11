@@ -4,14 +4,13 @@
     "description": "Interstellar themed quantum simulation suite.",
     "main": "index.html",
     "scripts": {
-      "start": "live-server"
+        "start": "live-server"
     },
     "keywords": [
-      "quantum",
-      "simulation",
-      "threejs"
+        "quantum",
+        "simulation",
+        "threejs"
     ],
     "author": "Your Name",
     "license": "ISC"
-  }
-  
+}

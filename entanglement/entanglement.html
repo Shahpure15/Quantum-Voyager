@@ -12,6 +12,8 @@
             margin: 0;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: black;
+            color: white;
         }
         #canvas-container {
             position: absolute;
@@ -177,45 +179,67 @@
             white-space: nowrap;
         }
         @media (max-width: 768px) {
-            #controls {
+            #controls, #info-panel, #title, #quantum-state, #correlation-stats {
                 width: 90%;
-                bottom: 10px;
-                left: 5%;
+                left: 5% !important;
+                right: 5% !important;
+                max-width: 95vw;
+                min-width: unset;
+                box-sizing: border-box;
+            }
+            #controls, #info-panel, #title, #quantum-state, #correlation-stats {
+                position: fixed !important;
+                z-index: 1001;
+            }
+            #controls {
+                bottom: 48px; /* Adjusted to account for audio player */
+                top: auto;
                 padding: 10px;
             }
             #info-panel {
-                width: 90%;
+                bottom: 140px;
                 top: auto;
-                bottom: 10px;
-                right: 5%;
+                padding: 10px;
             }
-            #title, #quantum-state, #correlation-stats {
+            #title {
+                top: 10px;
+                left: 5%;
+                font-size: 18px;
+            }
+            #quantum-state {
+                top: 45px;
+                left: 5%;
                 font-size: 12px;
             }
+            #correlation-stats {
+                top: 80px;
+                left: 5%;
+                font-size: 12px;
+            }
+            #hideControlsBtn {
+                position: fixed;
+                left: 5%;
+                width: 90%;
+                bottom: 10px;
+                z-index: 9999;
+                margin: 0 !important;
+                display: block;
+            }
         }
-
-        body.light-mode {
-            background-color: white;
-            color: black;
-        }
-
-        body.light-mode #controls {
-            background: rgba(240, 240, 240, 0.9);
-            color: black;
-        }
-
-        body.light-mode #info-panel {
-            background: rgba(220, 220, 220, 0.9);
-            color: black;
-        }
-
-        body.light-mode .tooltip .tooltiptext {
-            background-color: #ddd;
-            color: #333;
+        #hideControlsBtn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            margin: 0;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
-<body class="bg-black">
+<body>
     <div id="canvas-container"></div>
     <div id="title">Quantum Entanglement Simulation</div>
     <div id="quantum-state">Quantum State: |Ψ⟩ = (|↑↓⟩ - |↓↑⟩)/√2 (Singlet, Z-axis)</div>
@@ -309,9 +333,8 @@
         <p><b>Simplifications:</b> Spins are shown as up/down, but can be measured along any axis. Energy and momentum are conserved in entangled pairs. The visualization uses classical analogs (e.g., brightness, motion) for quantum properties.</p>
     </div>
 
-    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white py-1 px-3 rounded">Hide Controls</button>
-    <button id="themeToggleBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-3 rounded ml-2">Light Mode</button>
-
+    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">Hide Controls</button>
+    <script src="/common/audio-player.js"></script>
     <script>
         // Initialize Three.js scene
         const container = document.getElementById('canvas-container');
@@ -787,21 +810,28 @@
 
         const hideControlsBtn = document.getElementById('hideControlsBtn');
         const controlsDiv = document.getElementById('controls');
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const infoPanel = document.getElementById('info-panel');
+        const titleDiv = document.getElementById('title');
+        const quantumStateDiv = document.getElementById('quantum-state');
+        const correlationStatsDiv = document.getElementById('correlation-stats');
 
         hideControlsBtn.addEventListener('click', () => {
-            if (controlsDiv.style.display === 'none') {
+            const isHidden = controlsDiv.style.display === 'none';
+            if (isHidden) {
                 controlsDiv.style.display = 'block';
+                if(infoPanel) infoPanel.style.display = 'block';
+                if(titleDiv) titleDiv.style.display = 'block';
+                if(quantumStateDiv) quantumStateDiv.style.display = 'block';
+                if(correlationStatsDiv) correlationStatsDiv.style.display = 'block';
                 hideControlsBtn.textContent = 'Hide Controls';
             } else {
                 controlsDiv.style.display = 'none';
+                if(infoPanel) infoPanel.style.display = 'none';
+                if(titleDiv) titleDiv.style.display = 'none';
+                if(quantumStateDiv) quantumStateDiv.style.display = 'none';
+                if(correlationStatsDiv) correlationStatsDiv.style.display = 'none';
                 hideControlsBtn.textContent = 'Show Controls';
             }
-        });
-
-        themeToggleBtn.addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-            themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
         });
 
         const tooltips = document.querySelectorAll('.tooltip .tooltiptext');
@@ -817,7 +847,7 @@
                 }
             });
         });
-        
+
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);

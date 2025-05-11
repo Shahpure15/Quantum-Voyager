@@ -336,8 +336,8 @@ document.getElementById('btn-entanglement').addEventListener('click', () => {
     window.location.href = 'entanglement/entanglement.html';
 });
 
-document.getElementById('btn-superposition').addEventListener('click', () => {
-    window.location.href = 'superposition/superposition.html';
+document.getElementById('btn-computing').addEventListener('click', () => {
+    window.location.href = 'computing/computing.html';
 });
 
 document.getElementById('btn-ydse').addEventListener('click', () => {

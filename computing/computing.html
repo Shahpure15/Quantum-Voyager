@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Qubit Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        .bloch-sphere-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+        
+        .gate-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .gate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .circuit-slot {
+            transition: all 0.2s ease;
+        }
+        
+        .circuit-slot.highlight {
+            background-color: rgba(59, 130, 246, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1F2937;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .measurement-result {
+            transition: all 0.5s ease;
+        }
+        
+        .state-vector {
+            font-family: monospace;
+            background-color: #1F2937;
+            color: #10B981;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        /* Fix for Three.js canvas */
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+<body class="bg-black">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-2">Quantum Qubit Lab</h1>
+            <p class="text-gray-300 max-w-2xl mx-auto">Explore the fascinating world of quantum computing through interactive visualization of qubits, quantum gates, and the Bloch Sphere.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel - Qubit Controls -->
+            <div class="lg:col-span-1 bg-gray-800 rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-300">Qubit Controls</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-2">Initial State</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <button id="state-0" class="gate-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">|0⟩</button>
+                        <button id="state-1" class="gate-btn bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">|1⟩</button>
+                        <button id="state-plus" class="gate-btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">|+⟩</button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-2">Quantum Gates</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button id="gate-h" class="gate-btn tooltip bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg">
+                            H
+                            <span class="tooltiptext">Hadamard Gate: Creates superposition (|0⟩ → |+⟩, |1⟩ → |-⟩)</span>
+                        </button>
+                        <button id="gate-x" class="gate-btn tooltip bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg">
+                            X
+                            <span class="tooltiptext">Pauli-X Gate: Quantum NOT (|0⟩ ↔ |1⟩)</span>
+                        </button>
+                        <button id="gate-y" class="gate-btn tooltip bg-yellow-600 hover:bg-yellow-700 text-white p-3 rounded-lg">
+                            Y
+                            <span class="tooltiptext">Pauli-Y Gate: Rotation around Y-axis</span>
+                        </button>
+                        <button id="gate-z" class="gate-btn tooltip bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg">
+                            Z
+                            <span class="tooltiptext">Pauli-Z Gate: Phase flip (|1⟩ → -|1⟩)</span>
+                        </button>
+                        <button id="gate-s" class="gate-btn tooltip bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg">
+                            S
+                            <span class="tooltiptext">Phase Gate (√Z): Adds π/2 phase</span>
+                        </button>
+                        <button id="gate-t" class="gate-btn tooltip bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg">
+                            T
+                            <span class="tooltiptext">π/8 Gate: Adds π/4 phase</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-2">Measurement</h3>
+                    <button id="measure-btn" class="w-full gate-btn bg-pink-600 hover:bg-pink-700 text-white px-4 py-3 rounded-lg text-lg font-semibold pulse">
+                        Measure Qubit
+                    </button>
+                    <div id="measurement-result" class="mt-4 measurement-result text-center py-3 rounded-lg hidden">
+                        <span class="text-xl font-bold"></span>
+                        <p class="text-sm mt-1">Probability: <span class="probability"></span></p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-medium mb-2">State Vector</h3>
+                    <div id="state-vector" class="state-vector text-center">
+                        |ψ⟩ = 1.00|0⟩ + 0.00|1⟩
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Panel - Bloch Sphere -->
+            <div class="lg:col-span-1 bg-gray-800 rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-300">Bloch Sphere Visualization</h2>
+                <div class="bloch-sphere-container" id="bloch-sphere">
+                    <!-- Three.js will render here -->
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="theta-slider" class="block text-sm font-medium mb-1">θ (Theta): <span id="theta-value">0</span>°</label>
+                        <input type="range" id="theta-slider" min="0" max="180" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <label for="phi-slider" class="block text-sm font-medium mb-1">φ (Phi): <span id="phi-value">0</span>°</label>
+                        <input type="range" id="phi-slider" min="0" max="360" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Circuit Builder -->
+            <div class="lg:col-span-1 bg-gray-800 rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-300">Circuit Builder</h2>
+                
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium mb-2">Tutorials</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="tutorial-superposition" class="gate-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm">Create Superposition</button>
+                        <button id="tutorial-not" class="gate-btn bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm">Quantum NOT</button>
+                        <button id="tutorial-phase" class="gate-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm">Phase Change</button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium mb-2">Quantum Circuit</h3>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 text-center font-mono">|0⟩</div>
+                            <div class="flex-1 flex overflow-x-auto pb-4">
+                                <div class="circuit-slot flex flex-col items-center justify-center w-16 h-16 mx-1 bg-gray-600 rounded-lg border border-gray-500" data-step="0">
+                                    <span class="text-xs text-gray-300">Step 0</span>
+                                </div>
+                                <div class="circuit-slot flex flex-col items-center justify-center w-16 h-16 mx-1 bg-gray-600 rounded-lg border border-gray-500" data-step="1">
+                                    <span class="text-xs text-gray-300">Step 1</span>
+                                </div>
+                                <div class="circuit-slot flex flex-col items-center justify-center w-16 h-16 mx-1 bg-gray-600 rounded-lg border border-gray-500" data-step="2">
+                                    <span class="text-xs text-gray-300">Step 2</span>
+                                </div>
+                                <div class="circuit-slot flex flex-col items-center justify-center w-16 h-16 mx-1 bg-gray-600 rounded-lg border border-gray-500" data-step="3">
+                                    <span class="text-xs text-gray-300">Step 3</span>
+                                </div>
+                                <div class="circuit-slot flex flex-col items-center justify-center w-16 h-16 mx-1 bg-gray-600 rounded-lg border border-gray-500" data-step="4">
+                                    <span class="text-xs text-gray-300">Step 4</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium mb-2">Available Gates</h3>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="gate-draggable bg-indigo-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="H">H</div>
+                        <div class="gate-draggable bg-red-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="X">X</div>
+                        <div class="gate-draggable bg-yellow-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="Y">Y</div>
+                        <div class="gate-draggable bg-blue-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="Z">Z</div>
+                        <div class="gate-draggable bg-green-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="S">S</div>
+                        <div class="gate-draggable bg-purple-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="T">T</div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between">
+                    <button id="run-circuit" class="gate-btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">Run Circuit</button>
+                    <button id="reset-circuit" class="gate-btn bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">Reset Circuit</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-800 rounded-xl p-6 shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-300">Quantum Computing Concepts</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2 text-green-300">Qubits</h3>
+                    <p class="text-gray-300">Unlike classical bits that are either 0 or 1, qubits can exist in a superposition of states, represented as α|0⟩ + β|1⟩ where |α|² + |β|² = 1.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2 text-purple-300">Quantum Gates</h3>
+                    <p class="text-gray-300">Quantum gates are unitary transformations that change the state of qubits. Common gates include Hadamard (H), Pauli (X,Y,Z), and phase gates (S,T).</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2 text-blue-300">Bloch Sphere</h3>
+                    <p class="text-gray-300">The Bloch sphere is a geometric representation of a qubit's state. The north pole represents |0⟩, the south pole |1⟩, and points on the surface represent superposition states.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quantum State Representation
+        class QubitState {
+            constructor() {
+                this.alpha = { real: 1, imaginary: 0 }; // |0⟩ coefficient (real)
+                this.beta = { real: 0, imaginary: 0 };  // |1⟩ coefficient (complex)
+                this.reset();
+            }
+            
+            reset() {
+                this.alpha = { real: 1, imaginary: 0 };
+                this.beta = { real: 0, imaginary: 0 };
+                this.theta = 0;
+                this.phi = 0;
+                this.updateStateVector();
+            }
+            
+            setState0() {
+                this.alpha = { real: 1, imaginary: 0 };
+                this.beta = { real: 0, imaginary: 0 };
+                this.theta = 0;
+                this.phi = 0;
+                this.updateStateVector();
+            }
+            
+            setState1() {
+                this.alpha = { real: 0, imaginary: 0 };
+                this.beta = { real: 1, imaginary: 0 };
+                this.theta = Math.PI;
+                this.phi = 0;
+                this.updateStateVector();
+            }
+            
+            setStatePlus() {
+                this.alpha = { real: 1/Math.sqrt(2), imaginary: 0 };
+                this.beta = { real: 1/Math.sqrt(2), imaginary: 0 };
+                this.theta = Math.PI/2;
+                this.phi = 0;
+                this.updateStateVector();
+            }
+            
+            setStateMinus() {
+                this.alpha = { real: 1/Math.sqrt(2), imaginary: 0 };
+                this.beta = { real: -1/Math.sqrt(2), imaginary: 0 };
+                this.theta = Math.PI/2;
+                this.phi = Math.PI;
+                this.updateStateVector();
+            }
+            
+            applyGate(gate) {
+                let newAlpha, newBeta;
+                
+                switch(gate) {
+                    case 'H':
+                        // Hadamard gate
+                        newAlpha = {
+                            real: (this.alpha.real + this.beta.real)/Math.sqrt(2),
+                            imaginary: (this.alpha.imaginary + this.beta.imaginary)/Math.sqrt(2)
+                        };
+                        newBeta = {
+                            real: (this.alpha.real - this.beta.real)/Math.sqrt(2),
+                            imaginary: (this.alpha.imaginary - this.beta.imaginary)/Math.sqrt(2)
+                        };
+                        this.alpha = newAlpha;
+                        this.beta = newBeta;
+                        break;
+                    case 'X':
+                        // Pauli-X gate (quantum NOT)
+                        newAlpha = this.beta;
+                        newBeta = this.alpha;
+                        this.alpha = newAlpha;
+                        this.beta = newBeta;
+                        break;
+                    case 'Y':
+                        // Pauli-Y gate
+                        newAlpha = {
+                            real: this.beta.imaginary,
+                            imaginary: -this.beta.real
+                        };
+                        newBeta = {
+                            real: -this.alpha.imaginary,
+                            imaginary: this.alpha.real
+                        };
+                        this.alpha = newAlpha;
+                        this.beta = newBeta;
+                        break;
+                    case 'Z':
+                        // Pauli-Z gate
+                        this.beta = {
+                            real: -this.beta.real,
+                            imaginary: -this.beta.imaginary
+                        };
+                        break;
+                    case 'S':
+                        // Phase gate (√Z)
+                        this.beta = {
+                            real: -this.beta.imaginary,
+                            imaginary: this.beta.real
+                        };
+                        break;
+                    case 'T':
+                        // π/8 gate
+                        const phase = Math.PI/4;
+                        const cosPhase = Math.cos(phase);
+                        const sinPhase = Math.sin(phase);
+                        this.beta = {
+                            real: this.beta.real * cosPhase - this.beta.imaginary * sinPhase,
+                            imaginary: this.beta.real * sinPhase + this.beta.imaginary * cosPhase
+                        };
+                        break;
+                }
+                
+                // Update angles based on new state
+                this.updateAnglesFromState();
+                this.updateStateVector();
+            }
+            
+            updateAnglesFromState() {
+                // Calculate theta and phi from alpha and beta
+                const alphaMag = Math.sqrt(this.alpha.real * this.alpha.real + this.alpha.imaginary * this.alpha.imaginary);
+                const betaMag = Math.sqrt(this.beta.real * this.beta.real + this.beta.imaginary * this.beta.imaginary);
+                
+                this.theta = 2 * Math.atan2(betaMag, alphaMag);
+                
+                // Calculate phase difference between beta and alpha
+                const alphaPhase = Math.atan2(this.alpha.imaginary, this.alpha.real);
+                const betaPhase = Math.atan2(this.beta.imaginary, this.beta.real);
+                this.phi = betaPhase - alphaPhase;
+            }
+            
+            updateStateFromAngles() {
+                // Calculate alpha and beta from theta and phi
+                const cosTheta = Math.cos(this.theta/2);
+                const sinTheta = Math.sin(this.theta/2);
+                
+                this.alpha = { real: cosTheta, imaginary: 0 };
+                this.beta = { 
+                    real: sinTheta * Math.cos(this.phi), 
+                    imaginary: sinTheta * Math.sin(this.phi) 
+                };
+                this.updateStateVector();
+            }
+            
+            updateStateVector() {
+                const alphaStr = this.formatComplex(this.alpha);
+                const betaStr = this.formatComplex(this.beta);
+                document.getElementById('state-vector').innerHTML = `|ψ⟩ = ${alphaStr}|0⟩ + ${betaStr}|1⟩`;
+            }
+            
+            formatComplex(c) {
+                const real = c.real.toFixed(2);
+                const imag = c.imaginary.toFixed(2);
+                
+                if (Math.abs(c.imaginary) < 0.01) {
+                    return real;
+                } else if (Math.abs(c.real) < 0.01) {
+                    return imag + "i";
+                } else {
+                    return `${real} + ${imag}i`;
+                }
+            }
+            
+            measure() {
+                const prob0 = this.alpha.real * this.alpha.real + this.alpha.imaginary * this.alpha.imaginary;
+                const prob1 = this.beta.real * this.beta.real + this.beta.imaginary * this.beta.imaginary;
+                
+                // Collapse the state based on measurement probability
+                const random = Math.random();
+                if (random < prob0) {
+                    this.alpha = { real: 1, imaginary: 0 };
+                    this.beta = { real: 0, imaginary: 0 };
+                    this.theta = 0;
+                    this.phi = 0;
+                    return { result: 0, probability: prob0 };
+                } else {
+                    this.alpha = { real: 0, imaginary: 0 };
+                    this.beta = { real: 1, imaginary: 0 };
+                    this.theta = Math.PI;
+                    this.phi = 0;
+                    return { result: 1, probability: prob1 };
+                }
+            }
+        }
+
+        // Bloch Sphere Visualization
+        class BlochSphere {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.container.style.minHeight = '400px';  // Ensure minimum height
+                this.width = this.container.clientWidth;
+                this.height = this.container.clientHeight || 400;  // Fallback height
+                
+                // Create Three.js scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x1a1a2e);
+                
+                // Camera with adjusted position
+                this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 1000);
+                this.camera.position.set(3, 3, 3);  // Position camera at an angle
+                this.camera.lookAt(0, 0, 0);
+                
+                // Renderer with pixel ratio
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    alpha: true 
+                });
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.setSize(this.width, this.height);
+                this.container.innerHTML = '';  // Clear any existing content
+                this.container.appendChild(this.renderer.domElement);
+                
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0x404040);
+                this.scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);  // Increased intensity
+                directionalLight.position.set(5, 5, 5);  // Adjusted light position
+                this.scene.add(directionalLight);
+                
+                // Sphere with improved materials
+                this.sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+                this.sphereMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x3b82f6,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.6,
+                    specular: 0x4444ff,  // Blue specular highlight
+                    shininess: 50  // Increased shininess
+                });
+                this.sphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
+                this.scene.add(this.sphere);
+                
+                // Axes
+                const axesSize = 1.5;
+                const xAxisGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-axesSize, 0, 0),
+                    new THREE.Vector3(axesSize, 0, 0)
+                ]);
+                const yAxisGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, -axesSize, 0),
+                    new THREE.Vector3(0, axesSize, 0)
+                ]);
+                const zAxisGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, -axesSize),
+                    new THREE.Vector3(0, 0, axesSize)
+                ]);
+                
+                const axisMaterial = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
+                
+                this.xAxis = new THREE.Line(xAxisGeometry, axisMaterial);
+                this.yAxis = new THREE.Line(yAxisGeometry, axisMaterial);
+                this.zAxis = new THREE.Line(zAxisGeometry, axisMaterial);
+                
+                this.scene.add(this.xAxis);
+                this.scene.add(this.yAxis);
+                this.scene.add(this.zAxis);
+                
+                // Qubit state vector
+                this.qubitArrow = this.createArrow(0x00ff00);
+                this.scene.add(this.qubitArrow);
+                
+                // Labels
+                this.createLabels();
+                
+                // Add orbit controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                
+                // Animation loop
+                this.animate();
+                
+                // Handle window resize
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+            
+            createArrow(color) {
+                const dir = new THREE.Vector3(0, 0, 1);
+                dir.normalize();
+                
+                const origin = new THREE.Vector3(0, 0, 0);
+                const length = 1;
+                const hex = color;
+                
+                const arrowHelper = new THREE.ArrowHelper(
+                    dir, 
+                    origin, 
+                    length, 
+                    hex, 
+                    0.2, // head length
+                    0.1  // head width
+                );
+                return arrowHelper;
+            }
+            
+            createLabels() {
+                // Create text labels for |0⟩, |1⟩, |+⟩, |-⟩, |i⟩, |-i⟩
+                const labelPositions = {
+                    '|0⟩': new THREE.Vector3(0, 0, 1.2),
+                    '|1⟩': new THREE.Vector3(0, 0, -1.2),
+                    '|+⟩': new THREE.Vector3(1.2, 0, 0),
+                    '|-⟩': new THREE.Vector3(-1.2, 0, 0),
+                    '|i⟩': new THREE.Vector3(0, 1.2, 0),
+                    '|-i⟩': new THREE.Vector3(0, -1.2, 0)
+                };
+                
+                const loader = new THREE.TextureLoader();
+                
+                Object.entries(labelPositions).forEach(([text, position]) => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 128;
+                    canvas.height = 64;
+                    const context = canvas.getContext('2d');
+                    context.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    context.font = 'Bold 24px Arial';
+                    context.textAlign = 'center';
+                    context.textBaseline = 'middle';
+                    context.fillText(text, canvas.width/2, canvas.height/2);
+                    
+                    const texture = new THREE.CanvasTexture(canvas);
+                    const material = new THREE.SpriteMaterial({ map: texture });
+                    const sprite = new THREE.Sprite(material);
+                    sprite.position.copy(position);
+                    sprite.scale.set(0.3, 0.15, 1);
+                    this.scene.add(sprite);
+                });
+            }
+            
+            updateQubitState(theta, phi) {
+                // Convert spherical coordinates to Cartesian
+                const x = Math.sin(theta) * Math.cos(phi);
+                const y = Math.sin(theta) * Math.sin(phi);
+                const z = Math.cos(theta);
+                
+                // Update arrow direction
+                const dir = new THREE.Vector3(x, y, z);
+                this.qubitArrow.setDirection(dir.normalize());
+                this.qubitArrow.setLength(1, 0.2, 0.1);
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            onWindowResize() {
+                this.width = this.container.clientWidth;
+                this.height = this.container.clientHeight || 400;  // Fallback height
+                this.camera.aspect = this.width / this.height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.setSize(this.width, this.height);
+                this.renderer.render(this.scene, this.camera);  // Force a render
+            }
+        }
+
+        // Main Application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize quantum state
+            const qubitState = new QubitState();
+            
+            // Initialize Bloch sphere
+            const blochSphere = new BlochSphere('bloch-sphere');
+            
+            // Update Bloch sphere when state changes
+            function updateVisualization() {
+                blochSphere.updateQubitState(qubitState.theta, qubitState.phi);
+                document.getElementById('theta-value').textContent = Math.round(qubitState.theta * 180 / Math.PI);
+                document.getElementById('phi-value').textContent = Math.round(qubitState.phi * 180 / Math.PI);
+                document.getElementById('theta-slider').value = qubitState.theta * 180 / Math.PI;
+                document.getElementById('phi-slider').value = qubitState.phi * 180 / Math.PI;
+            }
+            
+            // Initial visualization
+            updateVisualization();
+            
+            // Event listeners for state buttons
+            document.getElementById('state-0').addEventListener('click', () => {
+                qubitState.setState0();
+                updateVisualization();
+            });
+            
+            document.getElementById('state-1').addEventListener('click', () => {
+                qubitState.setState1();
+                updateVisualization();
+            });
+            
+            document.getElementById('state-plus').addEventListener('click', () => {
+                qubitState.setStatePlus();
+                updateVisualization();
+            });
+            
+            // Event listeners for gate buttons
+            document.getElementById('gate-h').addEventListener('click', () => {
+                qubitState.applyGate('H');
+                updateVisualization();
+            });
+            
+            document.getElementById('gate-x').addEventListener('click', () => {
+                qubitState.applyGate('X');
+                updateVisualization();
+            });
+            
+            document.getElementById('gate-y').addEventListener('click', () => {
+                qubitState.applyGate('Y');
+                updateVisualization();
+            });
+            
+            document.getElementById('gate-z').addEventListener('click', () => {
+                qubitState.applyGate('Z');
+                updateVisualization();
+            });
+            
+            document.getElementById('gate-s').addEventListener('click', () => {
+                qubitState.applyGate('S');
+                updateVisualization();
+            });
+            
+            document.getElementById('gate-t').addEventListener('click', () => {
+                qubitState.applyGate('T');
+                updateVisualization();
+            });
+            
+            // Measurement
+            document.getElementById('measure-btn').addEventListener('click', () => {
+                const measurement = qubitState.measure();
+                const resultElement = document.getElementById('measurement-result');
+                
+                resultElement.classList.remove('hidden');
+                resultElement.classList.remove('bg-blue-600', 'bg-red-600');
+                
+                if (measurement.result === 0) {
+                    resultElement.classList.add('bg-blue-600');
+                    resultElement.querySelector('span').textContent = '|0⟩';
+                } else {
+                    resultElement.classList.add('bg-red-600');
+                    resultElement.querySelector('span').textContent = '|1⟩';
+                }
+                
+                resultElement.querySelector('.probability').textContent = (measurement.probability * 100).toFixed(1) + '%';
+                updateVisualization();
+            });
+            
+            // Sliders for manual control
+            document.getElementById('theta-slider').addEventListener('input', (e) => {
+                qubitState.theta = e.target.value * Math.PI / 180;
+                document.getElementById('theta-value').textContent = e.target.value;
+                qubitState.updateStateFromAngles();
+                updateVisualization();
+            });
+            
+            document.getElementById('phi-slider').addEventListener('input', (e) => {
+                qubitState.phi = e.target.value * Math.PI / 180;
+                document.getElementById('phi-value').textContent = e.target.value;
+                qubitState.updateStateFromAngles();
+                updateVisualization();
+            });
+            
+            // Circuit builder functionality
+            const circuitSlots = document.querySelectorAll('.circuit-slot');
+            const gateDraggables = document.querySelectorAll('.gate-draggable');
+            
+            // Drag and drop for gates
+            gateDraggables.forEach(gate => {
+                gate.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', gate.dataset.gate);
+                });
+            });
+            
+            circuitSlots.forEach(slot => {
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    slot.classList.add('highlight');
+                });
+                
+                slot.addEventListener('dragleave', () => {
+                    slot.classList.remove('highlight');
+                });
+                
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    slot.classList.remove('highlight');
+                    
+                    const gateType = e.dataTransfer.getData('text/plain');
+                    if (gateType) {
+                        // Clear any existing gate in this slot
+                        while (slot.firstChild) {
+                            slot.removeChild(slot.firstChild);
+                        }
+                        
+                        // Add the new gate
+                        const gateDiv = document.createElement('div');
+                        gateDiv.className = 'text-xl font-bold';
+                        gateDiv.textContent = gateType;
+                        
+                        // Color based on gate type
+                        switch(gateType) {
+                            case 'H': gateDiv.className += ' text-indigo-400'; break;
+                            case 'X': gateDiv.className += ' text-red-400'; break;
+                            case 'Y': gateDiv.className += ' text-yellow-400'; break;
+                            case 'Z': gateDiv.className += ' text-blue-400'; break;
+                            case 'S': gateDiv.className += ' text-green-400'; break;
+                            case 'T': gateDiv.className += ' text-purple-400'; break;
+                        }
+                        
+                        slot.appendChild(gateDiv);
+                    }
+                });
+            });
+            
+            // Run circuit
+            document.getElementById('run-circuit').addEventListener('click', () => {
+                // Reset to |0⟩ state
+                qubitState.setState0();
+                
+                // Apply gates in order
+                circuitSlots.forEach(slot => {
+                    if (slot.firstChild && slot.firstChild.textContent) {
+                        const gate = slot.firstChild.textContent;
+                        qubitState.applyGate(gate);
+                    }
+                });
+                
+                updateVisualization();
+            });
+            
+            // Reset circuit
+            document.getElementById('reset-circuit').addEventListener('click', () => {
+                circuitSlots.forEach(slot => {
+                    while (slot.firstChild) {
+                        slot.removeChild(slot.firstChild);
+                    }
+                    // Add back the step number
+                    const stepSpan = document.createElement('span');
+                    stepSpan.className = 'text-xs text-gray-300';
+                    stepSpan.textContent = `Step ${slot.dataset.step}`;
+                    slot.appendChild(stepSpan);
+                });
+                
+                qubitState.setState0();
+                updateVisualization();
+            });
+            
+            // Tutorials
+            document.getElementById('tutorial-superposition').addEventListener('click', () => {
+                // Reset circuit
+                document.getElementById('reset-circuit').click();
+                
+                // Add H gate to first slot
+                const firstSlot = document.querySelector('.circuit-slot[data-step="0"]');
+                const gateDiv = document.createElement('div');
+                gateDiv.className = 'text-xl font-bold text-indigo-400';
+                gateDiv.textContent = 'H';
+                firstSlot.appendChild(gateDiv);
+                
+                // Run the circuit
+                document.getElementById('run-circuit').click();
+            });
+            
+            document.getElementById('tutorial-not').addEventListener('click', () => {
+                // Reset circuit
+                document.getElementById('reset-circuit').click();
+                
+                // Add X gate to first slot
+                const firstSlot = document.querySelector('.circuit-slot[data-step="0"]');
+                const gateDiv = document.createElement('div');
+                gateDiv.className = 'text-xl font-bold text-red-400';
+                gateDiv.textContent = 'X';
+                firstSlot.appendChild(gateDiv);
+                
+                // Run the circuit
+                document.getElementById('run-circuit').click();
+            });
+            
+            document.getElementById('tutorial-phase').addEventListener('click', () => {
+                // Reset circuit
+                document.getElementById('reset-circuit').click();
+                
+                // Add H gate to first slot
+                const firstSlot = document.querySelector('.circuit-slot[data-step="0"]');
+                const gateDivH = document.createElement('div');
+                gateDivH.className = 'text-xl font-bold text-indigo-400';
+                gateDivH.textContent = 'H';
+                firstSlot.appendChild(gateDivH);
+                
+                // Add S gate to second slot
+                const secondSlot = document.querySelector('.circuit-slot[data-step="1"]');
+                const gateDivS = document.createElement('div');
+                gateDivS.className = 'text-xl font-bold text-green-400';
+                gateDivS.textContent = 'S';
+                secondSlot.appendChild(gateDivS);
+                
+                // Run the circuit
+                document.getElementById('run-circuit').click();
+            });
+        });
+    </script>
+    <script src="/common/audio-player.js"></script>
+</body>
+</html>
