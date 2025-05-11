@@ -412,12 +412,7 @@ function animate(currentTime) {
     // Smooth camera zoom
     cameraDistance += (targetCameraDistance - cameraDistance) * 0.05;
     camera.position.z = cameraDistance;
-    
-    // Update zoom and scale indicators
-    const zoomLevel = (30 / cameraDistance).toFixed(1);
-    document.getElementById('zoom-level').textContent = zoomLevel + 'x';
-    
-    // Update scale indicator based on zoom level
+      // Update scale indicator based on zoom level
     let currentScale = scaleRanges[scaleRanges.length - 1];
     for (const range of scaleRanges) {
         if (cameraDistance <= range.threshold) {
@@ -512,5 +507,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideOverlay();
             }
         }
+    });
+});
+
+// Show intro only on first visit (not on navigation back)
+window.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('intro-overlay');
+    if (sessionStorage.getItem('qv_intro_shown')) {
+        overlay.style.display = 'none';
+    } else {
+        overlay.style.display = 'block';
+        sessionStorage.setItem('qv_intro_shown', '1');
+    }
+    // ESC to close overlay
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') overlay.style.display = 'none';
+    });
+    // Toggle button
+    document.getElementById('overlay-toggle').addEventListener('change', (e) => {
+        if (e.target.checked) overlay.style.display = 'none';
     });
 });

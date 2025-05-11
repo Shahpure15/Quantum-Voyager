@@ -20,235 +20,229 @@
             width: 100%;
             height: 100%;
         }
+        
+        /* Main title styles */
+        #title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
+            padding: 8px 20px;
+            z-index: 96;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        /* Controls and info panel styles */
         #controls {
-            position: absolute;
-            bottom: 20px;
+            position: fixed;
+            top: 80px;  /* Changed to align with info panel */
             left: 20px;
-            background: rgba(34, 34, 34, 0.9);
-            padding: 20px;
-            border-radius: 10px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 15px;
+            border-radius: 12px;
             color: white;
             width: 300px;
-            z-index: 100;
+            z-index: 95;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        #controls::-webkit-scrollbar {
+            width: 6px;
+        }
+        #controls::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        #controls::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
         }
         .control-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .control-label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             font-weight: bold;
+            font-size: 0.9em;
         }
         .slider-container {
             display: flex;
             align-items: center;
+            gap: 8px;
         }
         .slider {
             flex-grow: 1;
-            margin-right: 10px;
         }
         .value-display {
             width: 40px;
             text-align: center;
+            font-size: 0.85em;
         }
-        .tooltip {
+
+        /* Info panel styles */
+        #info-panel {
+            position: fixed;
+            top: 80px;  /* Aligned with controls */
+            right: 20px;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            width: 280px;
+            z-index: 90;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            font-size: 0.9em;
+        }
+        #info-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        #info-panel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        #info-panel::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        #info-panel h3 {
+            font-size: 1.1em;
+            margin: 0 0 12px;
+            color: #3498db;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 6px;
+        }
+        #info-panel ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #info-panel li {
+            margin-bottom: 8px;
+            padding-left: 15px;
             position: relative;
-            display: inline-block;
-            cursor: help;
+            line-height: 1.4;
         }
+        #info-panel li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+        }
+        #info-panel li ul {
+            margin-top: 4px;
+        }
+
+        /* Tooltips */
         .tooltip .tooltiptext {
             visibility: hidden;
-            max-width: 250px;
+            max-width: 200px;
             word-wrap: break-word;
             white-space: normal;
-            width: 200px;
-            background-color: #333;
+            width: auto;
+            background-color: rgba(30, 30, 30, 0.95);
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px;
+            padding: 4px 8px;
             position: fixed;
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 12px;
+            font-size: 0.8em;
             font-weight: normal;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
+
+        /* System controls */
+        .system-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
         }
-        #title {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+        .system-controls button {
+            width: 100%;
+            padding: 6px 8px;
+            background: rgba(30, 60, 100, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-        }
-        #quantum-state {
-            position: absolute;
-            top: 60px;
-            left: 20px;
-            color: white;
-            font-size: 14px;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 300px;
-        }
-        #info-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(50, 50, 50, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            width: 300px;
-            z-index: 100;
-            font-size: 14px;
-        }
-        #info-panel h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        #correlation-stats {
-            position: absolute;
-            top: 120px;
-            left: 20px;
-            color: white;
-            font-size: 14px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 300px;
-            z-index: 100;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider-toggle {
-            position: absolute;
+            border-radius: 6px;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
+            transition: all 0.2s ease;
+            font-size: 0.85em;
         }
-        .slider-toggle:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider-toggle {
-            background-color: #2196F3;
-        }
-        input:checked + .slider-toggle:before {
-            transform: translateX(26px);
-        }
-        .property-label {
-            position: absolute;
-            color: white;
-            font-size: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 2px 5px;
-            border-radius: 3px;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        @media (max-width: 768px) {
-            #controls, #info-panel, #title, #quantum-state, #correlation-stats {
-                width: 90%;
-                left: 5% !important;
-                right: 5% !important;
-                max-width: 95vw;
-                min-width: unset;
-                box-sizing: border-box;
-            }
-            #controls, #info-panel, #title, #quantum-state, #correlation-stats {
-                position: fixed !important;
-                z-index: 1001;
-            }
-            #controls {
-                bottom: 48px; /* Adjusted to account for audio player */
-                top: auto;
-                padding: 10px;
-            }
-            #info-panel {
-                bottom: 140px;
-                top: auto;
-                padding: 10px;
-            }
-            #title {
-                top: 10px;
-                left: 5%;
-                font-size: 18px;
-            }
-            #quantum-state {
-                top: 45px;
-                left: 5%;
-                font-size: 12px;
-            }
-            #correlation-stats {
-                top: 80px;
-                left: 5%;
-                font-size: 12px;
-            }
-            #hideControlsBtn {
-                position: fixed;
-                left: 5%;
-                width: 90%;
-                bottom: 10px;
-                z-index: 9999;
-                margin: 0 !important;
-                display: block;
-            }
-        }
-        #hideControlsBtn {
+        .system-controls button:hover {
+            background: rgba(60, 120, 200, 0.9);
+            transform: translateY(-1px);
+        }        /* Hide controls and home buttons */
+        #hideControlsBtn, #homeBtn {
             position: fixed;
             top: 20px;
-            right: 20px;
-            z-index: 9999;
-            margin: 0;
+            z-index: 91;
+            background: rgba(30, 60, 100, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 12px;
             border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        #hideControlsBtn {
+            right: 20px;
+        }
+
+        #homeBtn {
+            left: 20px;
+        }
+
+        #hideControlsBtn:hover, #homeBtn:hover {
+            background: rgba(60, 120, 200, 0.9);
+            transform: translateY(-1px);
+        }
+        
+        /* Media queries for mobile responsiveness */
+        @media (max-width: 768px) {
+            #controls, #info-panel {
+                width: 90%;
+                left: 5%;
+                right: 5%;
+                top: auto;
+            }
+            #controls {
+                bottom: 80px;
+            }
+            #info-panel {
+                bottom: 80px;
+                top: auto;
+            }
+            #hideControlsBtn {
+                top: auto;
+                bottom: 20px;
+                right: 5%;
+                width: auto;
+            }
         }
     </style>
 </head>
-<body>
-    <div id="canvas-container"></div>
+<body>    <div id="canvas-container"></div>
     <div id="title">Quantum Entanglement Simulation</div>
-    <div id="quantum-state">Quantum State: |Ψ⟩ = (|↑↓⟩ - |↓↑⟩)/√2 (Singlet, Z-axis)</div>
     <div id="correlation-stats">Spin Correlations: A↑B↓: 0, A↓B↑: 0</div>
-    
-    <div id="controls">
+      <div id="controls">
+        <div class="quantum-state-display mb-3 text-sm text-gray-300 border-b border-gray-700 pb-2">
+            Quantum State: |Ψ⟩ = (|↑↓⟩ - |↓↑⟩)/√2 (Singlet, Z-axis)
+        </div>
         <div class="mb-4">
-            <h3 class="text-lg font-bold mb-2">Electron A Controls</h3>
-            
             <div class="control-group">
                 <label class="control-label tooltip">
                     Spin
@@ -308,9 +302,7 @@
                 </div>
             </div>
         </div>
-        
-        <div class="border-t border-gray-600 pt-4">
-            <h3 class="text-lg font-bold mb-2">System Controls</h3>
+          <div class="border-t border-gray-600 pt-4">
             <div class="control-group">
                 <label class="control-label tooltip">
                     Bell State
@@ -321,21 +313,41 @@
                     <option value="triplet">Triplet</option>
                 </select>
             </div>
-            <button id="resetBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded">Reset Simulation</button>
-            <button id="entangleBtn" class="bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded ml-2">Toggle Entanglement</button>
-            <button id="pauseBtn" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded ml-2">Pause</button>
+            <div class="system-controls">
+                <button id="resetBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded">Reset Simulation</button>
+                <button id="entangleBtn" class="bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded">Toggle Entanglement</button>
+                <button id="pauseBtn" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded">Pause</button>
+            </div>
         </div>
     </div>
 
     <div id="info-panel">
         <h3>About Quantum Entanglement</h3>
-        <p>Quantum entanglement is a phenomenon where two particles share a special connection, so that measuring one instantly determines properties of the other, no matter the distance. This simulation visualizes two entangled electrons with correlated spin, momentum, energy, and phase.</p>
-        <p><b>Simplifications:</b> Spins are shown as up/down, but can be measured along any axis. Energy and momentum are conserved in entangled pairs. The visualization uses classical analogs (e.g., brightness, motion) for quantum properties.</p>
-    </div>
-
-    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">Hide Controls</button>
+        <ul>            <li>Quantum entanglement is a unique quantum phenomenon where two or more particles share a connected quantum state.</li>
+            <li>Key Properties:
+                <ul style="padding-left: 15px; margin-top: 5px;">
+                    <li>Measuring one particle instantly affects its entangled partner</li>
+                    <li>This effect occurs regardless of the distance between particles</li>
+                    <li>Einstein called this "spooky action at a distance"</li>
+                </ul>
+            </li>
+            <li>In This Simulation:
+                <ul style="padding-left: 15px; margin-top: 5px;">
+                    <li>Blue and red spheres represent entangled electrons</li>
+                    <li>White arrows show spin direction (up/down)</li>
+                    <li>Rings indicate measurement axis (Z or X)</li>
+                </ul>
+            </li>
+        </ul>
+    </div>    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">Hide Controls</button>
+    <button id="homeBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">Home</button>
     <script src="/common/audio-player.js"></script>
     <script>
+        // Add home button click handler
+        document.getElementById('homeBtn').addEventListener('click', () => {
+            window.location.href = '/';
+        });
+
         // Initialize Three.js scene
         const container = document.getElementById('canvas-container');
         const width = container.clientWidth;
@@ -575,8 +587,7 @@
                 maxZ: 8
             };
         };
-        
-        // Update quantum state display
+          // Update quantum state display
         const updateQuantumStateDisplay = () => {
             const axis = document.getElementById('axisA').checked ? 'X' : 'Z';
             let stateText = '';
@@ -589,7 +600,7 @@
             } else {
                 stateText = `|Ψ⟩ = |↑⟩⊗|↓⟩ (Not Entangled, ${axis}-axis)`;
             }
-            document.getElementById('quantum-state').textContent = `Quantum State: ${stateText}`;
+            document.querySelector('.quantum-state-display').textContent = `Quantum State: ${stateText}`;
         };
         
         // Update correlation stats

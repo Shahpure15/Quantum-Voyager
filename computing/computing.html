@@ -8,10 +8,15 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <style>
-        .bloch-sphere-container {
-            width: 100%;
-            height: 400px;
-            position: relative;
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            min-height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
         }
         
         .gate-btn {
@@ -79,8 +84,8 @@
         
         .state-vector {
             font-family: monospace;
-            background-color: #1F2937;
-            color: #10B981;
+            background-color: #23272f !important;
+            color: white !important;
             padding: 8px;
             border-radius: 4px;
         }
@@ -91,12 +96,102 @@
             width: 100% !important;
             height: 100% !important;
         }
+
+        /* Canvas container and background styles */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Glass morphism effect */
+        .bg-gray-800 {
+            background: rgba(20, 20, 20, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bg-gray-700 {
+            background: rgba(30, 30, 30, 0.95) !important;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .bg-gray-600 {
+            background: rgba(40, 40, 40, 0.95) !important;
+            color: white !important;
+        }
+
+        .text-blue-300, .text-green-300, .text-purple-300, .text-indigo-400, .text-red-400, .text-yellow-400, .text-green-400, .text-purple-400 {
+            color: white !important;
+        }
+
+        .text-gray-300 {
+            color: #e5e7eb !important;
+        }
+
+        .state-vector {
+            background-color: #23272f !important;
+            color: white !important;
+        }
+
+        .circuit-slot span {
+            color: #e5e7eb !important;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37) !important;
+        }
+
+        .galactic-gradient {
+            background: linear-gradient(90deg, #60a5fa 0%, #7c3aed 25%, #f472b6 55%, #facc15 85%, #fff 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 32px rgba(100, 200, 255, 0.28), 0 2px 8px #222;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+        }
+        #homeBtn {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            z-index: 99;
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 60%, #f472b6 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            box-shadow: 0 4px 24px 0 rgba(60,60,120,0.18);
+            padding: 12px 34px;
+            font-size: 1.15em;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            outline: none;
+        }
+        #homeBtn:hover, #homeBtn:focus {
+            background: linear-gradient(90deg, #f472b6 0%, #7c3aed 60%, #2563eb 100%);
+            transform: translateY(-2px) scale(1.06);
+            box-shadow: 0 8px 32px 0 rgba(60,60,120,0.28);
+        }
     </style>
 </head>
-<body class="bg-black">
-    <div class="container mx-auto px-4 py-8">
+<body>
+    <div id="canvas-container"></div>
+    <div class="container mx-auto px-4 py-8 relative z-10">
         <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-2">Quantum Qubit Lab</h1>
+            <h1 class="text-4xl font-bold galactic-gradient mb-2">Quantum Qubit Lab</h1>
             <p class="text-gray-300 max-w-2xl mx-auto">Explore the fascinating world of quantum computing through interactive visualization of qubits, quantum gates, and the Bloch Sphere.</p>
         </header>
 
@@ -146,7 +241,7 @@
                 
                 <div class="mb-6">
                     <h3 class="text-lg font-medium mb-2">Measurement</h3>
-                    <button id="measure-btn" class="w-full gate-btn bg-pink-600 hover:bg-pink-700 text-white px-4 py-3 rounded-lg text-lg font-semibold pulse">
+                    <button id="measure-btn" class="w-full gate-btn bg-pink-600 hover:bg-pink-700 text-white px-4 py-3 rounded-lg text-lg font-semibold">
                         Measure Qubit
                     </button>
                     <div id="measurement-result" class="mt-4 measurement-result text-center py-3 rounded-lg hidden">
@@ -223,12 +318,12 @@
                 <div class="mb-4">
                     <h3 class="text-lg font-medium mb-2">Available Gates</h3>
                     <div class="grid grid-cols-4 gap-2">
-                        <div class="gate-draggable bg-indigo-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="H">H</div>
-                        <div class="gate-draggable bg-red-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="X">X</div>
-                        <div class="gate-draggable bg-yellow-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="Y">Y</div>
-                        <div class="gate-draggable bg-blue-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="Z">Z</div>
-                        <div class="gate-draggable bg-green-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="S">S</div>
-                        <div class="gate-draggable bg-purple-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="T">T</div>
+                        <div class="gate-draggables bg-indigo-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="H">H</div>
+                        <div class="gate-draggables bg-red-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="X">X</div>
+                        <div class="gate-draggables bg-yellow-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="Y">Y</div>
+                        <div class="gate-draggables bg-blue-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="Z">Z</div>
+                        <div class="gate-draggables bg-green-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="S">S</div>
+                        <div class="gate-draggables bg-purple-600 text-white p-2 rounded-lg text-center cursor-move" draggable="true" data-gate="T">T</div>
                     </div>
                 </div>
                 
@@ -257,6 +352,8 @@
             </div>
         </div>
     </div>
+
+    <button id="homeBtn">Home</button>
 
     <script>
         // Quantum State Representation
@@ -617,6 +714,53 @@
 
         // Main Application
         document.addEventListener('DOMContentLoaded', () => {
+            // Create starry background
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Create stars
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.05,
+                transparent: true
+            });
+
+            const starsVertices = [];
+            for (let i = 0; i < 5000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starsVertices.push(x, y, z);
+            }
+
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+
+            // Animation
+            let time = 0;
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.001;
+                stars.rotation.y = time * 0.1;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
             // Initialize quantum state
             const qubitState = new QubitState();
             
@@ -716,15 +860,21 @@
                 qubitState.updateStateFromAngles();
                 updateVisualization();
             });
-            
-            // Circuit builder functionality
+              // Circuit builder functionality
             const circuitSlots = document.querySelectorAll('.circuit-slot');
-            const gateDraggables = document.querySelectorAll('.gate-draggable');
+            const gateDraggables = document.querySelectorAll('.gate-draggables');
+            let currentDraggedGate = null;
             
             // Drag and drop for gates
             gateDraggables.forEach(gate => {
                 gate.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', gate.dataset.gate);
+                    currentDraggedGate = e.target.dataset.gate;
+                    e.target.classList.add('opacity-50');
+                });
+                
+                gate.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('opacity-50');
+                    currentDraggedGate = null;
                 });
             });
             
@@ -736,14 +886,11 @@
                 
                 slot.addEventListener('dragleave', () => {
                     slot.classList.remove('highlight');
-                });
-                
-                slot.addEventListener('drop', (e) => {
+                });                  slot.addEventListener('drop', (e) => {
                     e.preventDefault();
                     slot.classList.remove('highlight');
                     
-                    const gateType = e.dataTransfer.getData('text/plain');
-                    if (gateType) {
+                    if (currentDraggedGate) {
                         // Clear any existing gate in this slot
                         while (slot.firstChild) {
                             slot.removeChild(slot.firstChild);
@@ -751,17 +898,17 @@
                         
                         // Add the new gate
                         const gateDiv = document.createElement('div');
-                        gateDiv.className = 'text-xl font-bold';
-                        gateDiv.textContent = gateType;
+                        gateDiv.className = 'text-xl font-bold p-2 rounded-lg text-white';
+                        gateDiv.textContent = currentDraggedGate;
                         
                         // Color based on gate type
-                        switch(gateType) {
-                            case 'H': gateDiv.className += ' text-indigo-400'; break;
-                            case 'X': gateDiv.className += ' text-red-400'; break;
-                            case 'Y': gateDiv.className += ' text-yellow-400'; break;
-                            case 'Z': gateDiv.className += ' text-blue-400'; break;
-                            case 'S': gateDiv.className += ' text-green-400'; break;
-                            case 'T': gateDiv.className += ' text-purple-400'; break;
+                        switch(currentDraggedGate) {
+                            case 'H': gateDiv.className += ' bg-indigo-600'; break;
+                            case 'X': gateDiv.className += ' bg-red-600'; break;
+                            case 'Y': gateDiv.className += ' bg-yellow-600'; break;
+                            case 'Z': gateDiv.className += ' bg-blue-600'; break;
+                            case 'S': gateDiv.className += ' bg-green-600'; break;
+                            case 'T': gateDiv.className += ' bg-purple-600'; break;
                         }
                         
                         slot.appendChild(gateDiv);
@@ -853,6 +1000,10 @@
                 
                 // Run the circuit
                 document.getElementById('run-circuit').click();
+            });
+            
+            document.getElementById('homeBtn').addEventListener('click', () => {
+                window.location.href = '/';
             });
         });
     </script>

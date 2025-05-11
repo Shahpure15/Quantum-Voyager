@@ -3,66 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbon Atom - Quantum Physics Explorer</title>
+    <title>Quantum Voyager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="assets/images/qvlogo.svg" type="image/x-icon">
 </head>
 <body class="bg-black text-white">
-    <div class="intro-overlay" id="intro-overlay">
-        <div class="intro-content">
-            <div class="intro-logo" id="intro-logo">
-                <h2>Welcome to Quantum Voyager - A Physics Simulation and Quantum Explorer</h2>
-                <img src="assets/images/qvlogocolor.png" alt="Brand Logo" class="logo">
-            </div>
-            <p>This interactive platform allows you to visualize and explore quantum phenomena through 3D simulations.</p>
-            
-            <h3>Instructions:</h3>
-            <ul class="instructions-list">
-                <li><strong>Navigation:</strong> Click and drag to rotate the atom model</li>
-                <li><strong>Zoom:</strong> Use the mouse wheel to zoom in and out</li>
-                <li><strong>Explore:</strong> Use the navigation buttons to switch between different quantum phenomena</li>
-                <li><strong>Scale:</strong> The scale indicator shows the current level of detail</li>
-            </ul>
-            
-            <p>This model visualizes a Carbon-12 atom with 6 protons, 6 neutrons, and 6 electrons in their quantum shells.</p>
-            
-            <div class="toggle-container">
-                <label class="switch">
-                    <input type="checkbox" id="overlay-toggle">
-                    <span class="slider"></span>
-                </label>
-                <span class="toggle-label">Start Exploring</span>
-            </div>
-            
-            <p class="tip"><small>Tip: Press ESC to close this overlay at any time</small></p>
+    <!-- Mobile Warning -->
+    <div class="mobile-warning">
+        <div class="mobile-warning-content">
+            <img src="assets/images/qvlogo.svg" alt="Quantum Voyager Logo">
+            <h2>Please View on a Laptop</h2>
+            <p>Quantum Voyager provides an immersive 3D experience that is best viewed on a laptop or desktop computer. The interactive simulations require a larger screen and more processing power than most mobile devices can provide.</p>
+            <p>For the optimal quantum physics experience, please revisit us on your computer.</p>
         </div>
     </div>
 
-    <div class="title">Carbon Atom (C-12)</div>
+    <!-- Header -->
+    <header class="quantum-header">
+        <div class="header-content">
+            <img src="assets/images/qvlogo.svg" alt="Quantum Voyager Logo" class="header-logo">
+            <h1>Quantum Voyager</h1>
+        </div>
+    </header>
+
+    <!-- Three.js canvas container -->
+    <div id="canvas-container"></div>
+    
     <div class="navigation">
         <button class="nav-button" id="btn-entanglement">Quantum Entanglement</button>
         <button class="nav-button" id="btn-computing">Quantum Computing</button>
         <button class="nav-button" id="btn-ydse">Double Slit Experiment</button>
     </div>
     
-    <div class="info-panel">
+    <!-- Renamed to carbon-info to avoid class conflict -->
+    <div class="carbon-info">
         <h3>Carbon Atom Model</h3>
         <p>Carbon-12 has 6 protons, 6 neutrons, and 6 electrons.</p>
         <p>Electron configuration: 1s² 2s² 2p²</p>
         <p>Use mouse wheel to zoom, click and drag to rotate.</p>
     </div>
     
-    <div class="zoom-indicator">Zoom Level: <span id="zoom-level">1x</span></div>
-    
     <div class="scale-indicator">
         <h3>Scale Reference</h3>
         <div id="scale-text">1:10⁻¹⁰ m (1 Å)</div>
         <div class="scale-bar"></div>
+    </div>    <!-- About & Features button and info panel -->
+    <div class="about-features-button" id="about-features-button">About & Features</div>
+    <!-- Updated the About & Features panel with experiment details -->
+    <div class="info-panel floating-box" id="info-panel" style="display: none;">
+        <button class="close-button" id="close-info-panel">X</button>
+        <h2>Welcome to Quantum Voyager</h2>
+        <p class="intro-text">An immersive platform for exploring quantum physics through interactive 3D simulations.</p>
+        
+        <div class="section">
+            <h3>Interactive Experiments</h3>
+            <ul class="experiments-list">
+                <li>
+                    <strong>Carbon Atom Model</strong>
+                    <p>Experience a dynamic 3D visualization of a Carbon-12 atom:</p>
+                    <ul>
+                        <li>Observe electron orbitals and quantum shells</li>
+                        <li>Visualize wave-particle duality</li>
+                        <li>Explore from femtometer to nanometer scale</li>
+                        <li>Interact with electron probability clouds</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Quantum Entanglement</strong>
+                    <p>Explore the fascinating world of quantum entanglement:</p>
+                    <ul>
+                        <li>Visualize entangled particle pairs</li>
+                        <li>Observe quantum state correlations</li>
+                        <li>Experiment with measurement effects</li>
+                        <li>Understand Bell's inequality</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Quantum Computing</strong>
+                    <p>Dive into quantum computation fundamentals:</p>
+                    <ul>
+                        <li>Interact with quantum gates and circuits</li>
+                        <li>Visualize qubit states on Bloch sphere</li>
+                        <li>Experiment with quantum algorithms</li>
+                        <li>Explore quantum superposition</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Double-Slit Experiment</strong>
+                    <p>Witness the core principles of quantum mechanics:</p>
+                    <ul>
+                        <li>Observe wave-particle duality in action</li>
+                        <li>Control particle emission rates</li>
+                        <li>View interference patterns develop</li>
+                        <li>Explore measurement effects</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>Platform Features</h3>
+            <ul class="features-list">
+                <li><strong>Interactive Controls:</strong> Rotate, zoom, and manipulate 3D models with intuitive mouse controls</li>
+                <li><strong>Real-time Scaling:</strong> Dynamic scale indicator showing quantum realm measurements</li>
+                <li><strong>Immersive Audio:</strong> Atmospheric background music enhancing the experience</li>
+                <li><strong>Educational Tooltips:</strong> Detailed explanations of quantum phenomena</li>
+                <li><strong>Responsive Design:</strong> Seamless experience across different devices</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h3>Getting Started</h3>
+            <ul class="instructions-list">
+                <li>Use mouse to rotate and zoom the 3D models</li>
+                <li>Navigate between experiments using the buttons above</li>
+                <li>Watch the scale indicator to understand size references</li>
+                <li>Toggle audio for an immersive experience</li>
+            </ul>
+        </div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
     <script src="common/audio-player.js"></script>
+    <script>
+        // JavaScript to toggle the info panel
+        const aboutButton = document.getElementById('about-features-button');
+        const infoPanel = document.getElementById('info-panel');
+        const closeButton = document.getElementById('close-info-panel');
+
+        aboutButton.addEventListener('click', () => {
+            infoPanel.style.display = 'block';
+        });
+
+        closeButton.addEventListener('click', () => {
+            infoPanel.style.display = 'none';
+        });
+
+        // Make sure Three.js renderer is appended to the canvas container
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+    </script>
 </body>
 </html>
