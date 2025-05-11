@@ -47,14 +47,10 @@
     .home-button:hover {
       background-color: rgba(60, 120, 200, 0.9);
       transform: scale(1.05);
-    }
-
-    .iframe-container {
+    }    .iframe-container {
       width: 100vw;
-      height: calc(100vh - 50px); /* 50px = height of header */
-    }
-
-    iframe {
+      height: calc(100vh - 90px); /* Adjusted to fit audio player */
+    }iframe {
       width: 100%;
       height: 100%;
       border: none;
@@ -62,7 +58,6 @@
   </style>
 </head>
 <body>
-
   <div class="header">
     <button class="home-button" onclick="window.location.href='../index.html'">Home</button>
     <span>Powered by <a href="https://phet.colorado.edu/" target="_blank">PhET Simulations, University of Colorado Boulder</a></span>
@@ -73,6 +68,37 @@
       src="https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_en.html"
       allowfullscreen>
     </iframe>
-  </div>
+  </div>  <!-- Required Scripts -->  <!-- Link the global styles for consistent audio player styling -->
+  <link rel="stylesheet" href="../styles.css">
+
+  <!-- Initialize audio player with consistent behavior -->
+  <script src="../common/audio-player.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get current audio state from localStorage
+      const currentTime = parseFloat(localStorage.getItem('quantum-voyager-currentTime') || '0');
+      const wasPlaying = localStorage.getItem('quantum-voyager-playing') === 'true';
+      
+      // Initialize audio player
+      if (!window.audioPlayer) {
+        window.audioPlayer = new AudioPlayer();
+      }
+
+      // Maintain state across page navigation
+      if (window.audioPlayer?.audio) {
+        window.audioPlayer.audio.currentTime = currentTime;
+        if (wasPlaying) {
+          window.audioPlayer.audio.play();
+        }
+      }
+
+      // Save current time before unloading
+      window.addEventListener('beforeunload', () => {
+        if (window.audioPlayer?.audio) {
+          localStorage.setItem('quantum-voyager-currentTime', window.audioPlayer.audio.currentTime);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
