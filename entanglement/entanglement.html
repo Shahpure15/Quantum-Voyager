@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <rel="stylesheet" href="../computing/computing.html">
     <style>
         body {
             margin: 0;
@@ -237,7 +238,6 @@
 </head>
 <body>    <div id="canvas-container"></div>
     <div id="title">Quantum Entanglement Simulation</div>
-    <div id="correlation-stats">Spin Correlations: A↑B↓: 0, A↓B↑: 0</div>
       <div id="controls">
         <div class="quantum-state-display mb-3 text-sm text-gray-300 border-b border-gray-700 pb-2">
             Quantum State: |Ψ⟩ = (|↑↓⟩ - |↓↑⟩)/√2 (Singlet, Z-axis)
@@ -339,8 +339,9 @@
                 </ul>
             </li>
         </ul>
-    </div>    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">Hide Controls</button>
-    <button id="homeBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg">Home</button>
+    </div>    
+    <button id="hideControlsBtn" class="bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg quantum-action-button">Hide Controls</button>
+    <button id="homeBtn" class="gate-btn bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-full">Home</button>
     <script src="/common/audio-player.js"></script>
     <script>
         // Add home button click handler
@@ -527,8 +528,8 @@
             label.textContent = text;
             label.style.top = '0';
             label.style.left = '0';
+            label.style.pointerEvents = 'none'; // Prevent label from blocking canvas drag
             document.body.appendChild(label);
-            
             return {
                 element: label,
                 update: () => {
@@ -859,6 +860,44 @@
             });
         });
 
+        // Dragging logic for electrons (add this after electron creation and before animation loop)
+let draggingElectron = null;
+let dragOffset = new THREE.Vector3();
+
+renderer.domElement.addEventListener('mousedown', function(event) {
+    if (isPaused) return; // Prevent drag when paused
+    const mouse = new THREE.Vector2(
+        (event.clientX / container.clientWidth) * 2 - 1,
+        -(event.clientY / container.clientHeight) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects([electronA, electronB]);
+    if (intersects.length > 0) {
+        draggingElectron = intersects[0].object;
+        dragOffset.copy(intersects[0].point).sub(draggingElectron.position);
+    }
+});
+
+renderer.domElement.addEventListener('mousemove', function(event) {
+    if (isPaused || !draggingElectron) return;
+    const mouse = new THREE.Vector2(
+        (event.clientX / container.clientWidth) * 2 - 1,
+        -(event.clientY / container.clientHeight) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(planeZ, intersection);
+    if (intersection) {
+        draggingElectron.position.copy(intersection.sub(dragOffset));
+    }
+});
+
+renderer.domElement.addEventListener('mouseup', function() {
+    draggingElectron = null;
+});
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);

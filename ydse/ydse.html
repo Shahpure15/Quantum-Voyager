@@ -35,18 +35,18 @@
       margin: 0 10px;
     }
 
-    .home-button {
+    .home-button, #homeBtn {
       background-color: rgba(30, 60, 100, 0.7);
       color: white;
       border: none;
       padding: 5px 10px;
-      border-radius: 5px;
+      border-radius: 999px !important;
       cursor: pointer;
       font-size: 0.9em;
       transition: all 0.3s ease;
     }
 
-    .home-button:hover {
+    .home-button:hover, #homeBtn:hover {
       background-color: rgba(60, 120, 200, 0.9);
       transform: scale(1.05);
     }    .iframe-container {
@@ -65,7 +65,7 @@
 </head>
 <body>
   <div class="header">
-    <button class="home-button" onclick="window.location.href='../index.html'">Home</button>
+    <button id="homeBtn" class="gate-btn bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-full">Home</button>
     <span>Powered by <a href="https://phet.colorado.edu/" target="_blank">PhET Simulations, University of Colorado Boulder</a></span>
   </div>
 
@@ -109,5 +109,11 @@
   </script>
   <!-- Initialize audio player with consistent behavior -->
   <script src="../common/audio-player.js"></script>
+  <script>
+    // Add home button click handler
+    document.getElementById('homeBtn').addEventListener('click', () => {
+        window.location.href = '/';
+    });
+  </script>
 </body>
 </html>

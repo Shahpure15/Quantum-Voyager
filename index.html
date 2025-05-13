@@ -21,9 +21,12 @@
 
     <!-- Header -->
     <header class="quantum-header">
-        <div class="header-content">
-            <img src="assets/images/qvlogo.svg" alt="Quantum Voyager Logo" class="header-logo">
-            <h1>Quantum Voyager</h1>
+        <div class="header-content">            <div class="about-features-button" id="about-features-button">About & Features</div>
+            <div class="header-center-group">
+                <img src="assets/images/qvlogo.svg" alt="Quantum Voyager Logo" class="header-logo">
+                <h1 class="quantum-header-heading">Quantum Voyager</h1>
+            </div>
+            <div class="contribute-button" id="contribute-button">Contribute</div>
         </div>
     </header>
 
@@ -48,8 +51,8 @@
         <h3>Scale Reference</h3>
         <div id="scale-text">1:10⁻¹⁰ m (1 Å)</div>
         <div class="scale-bar"></div>
-    </div>    <!-- About & Features button and info panel -->
-    <div class="about-features-button" id="about-features-button">About & Features</div>
+    </div>
+    
     <!-- Updated the About & Features panel with experiment details -->
     <div class="info-panel floating-box" id="info-panel" style="display: none;">
         <button class="close-button" id="close-info-panel">X</button>
@@ -123,6 +126,58 @@
             </ul>
         </div>
     </div>
+
+    <!-- New Contribute panel -->
+    <div class="contribute-panel floating-box" id="contribute-panel" style="display: none;">
+        <button class="close-button" id="close-contribute-panel">X</button>
+        <h2>Contribute to Quantum Voyager</h2>
+        <p class="intro-text">Quantum Voyager is an open-source project and we welcome contributions from developers, physicists, educators, and enthusiasts!</p>
+        
+        <div class="section">
+            <h3>Ways to Contribute</h3>
+            <ul class="contribute-list">
+                <li><strong>Code:</strong> Implement new features, fix bugs, improve performance</li>
+                <li><strong>Physics:</strong> Help improve the accuracy of our quantum simulations</li>
+                <li><strong>Documentation:</strong> Write tutorials, improve explanations</li>
+                <li><strong>Design:</strong> Enhance UI/UX, create visualizations</li>
+                <li><strong>Testing:</strong> Report bugs, test on different platforms</li>
+                <li><strong>Ideas:</strong> Suggest new experiments or features</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h3>Getting Started</h3>
+            <ol class="contribute-steps">
+                <li>Fork the repository at <a href="https://github.com/Shahpure15/Quantum-Project" target="_blank" class="repo-link">github.com/Shahpure15/Quantum-Project</a></li>
+                <li>Clone your fork locally and follow setup instructions in the README</li>
+                <li>Check the Issues tab for beginner-friendly tasks or create a new Issue</li>
+                <li>Make your changes in a new branch</li>
+                <li>Submit a Pull Request with a clear description of your changes</li>
+            </ol>
+        </div>
+        
+        <div class="section">
+            <h3>Development Stack</h3>
+            <ul class="tech-stack">
+                <li><strong>Frontend:</strong> HTML, CSS, JavaScript</li>
+                <li><strong>3D Rendering:</strong> Three.js</li>
+                <li><strong>CSS Framework:</strong> Tailwind CSS</li>
+                <li><strong>Package Manager:</strong> npm</li>
+                <li><strong>Development Server:</strong> live-server</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h3>Code of Conduct</h3>
+            <p>We are committed to providing a welcoming and inspiring community for all. Please read our <a href="https://github.com/Shahpure15/Quantum-Project/blob/main/CODE_OF_CONDUCT.md" target="_blank" class="repo-link">Code of Conduct</a> before contributing.</p>
+        </div>
+        
+        <div class="section">
+            <h3>Contact</h3>
+            <p>For questions or assistance with contributing, please contact us at <a href="mailto:202401080028@mitaoe.ac.in" class="contact-link">202401080028@mitaoe.ac.in</a></p>
+        </div>
+    </div>
+
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
@@ -131,14 +186,29 @@
         // JavaScript to toggle the info panel
         const aboutButton = document.getElementById('about-features-button');
         const infoPanel = document.getElementById('info-panel');
-        const closeButton = document.getElementById('close-info-panel');
+        const closeInfoButton = document.getElementById('close-info-panel');
 
         aboutButton.addEventListener('click', () => {
             infoPanel.style.display = 'block';
+            contributePanel.style.display = 'none';
         });
 
-        closeButton.addEventListener('click', () => {
+        closeInfoButton.addEventListener('click', () => {
             infoPanel.style.display = 'none';
+        });
+
+        // JavaScript to toggle the contribute panel
+        const contributeButton = document.getElementById('contribute-button');
+        const contributePanel = document.getElementById('contribute-panel');
+        const closeContributeButton = document.getElementById('close-contribute-panel');
+
+        contributeButton.addEventListener('click', () => {
+            contributePanel.style.display = 'block';
+            infoPanel.style.display = 'none';
+        });
+
+        closeContributeButton.addEventListener('click', () => {
+            contributePanel.style.display = 'none';
         });
 
         // Make sure Three.js renderer is appended to the canvas container

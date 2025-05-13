@@ -510,24 +510,39 @@ canvas {
     z-index: 1000;
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
     padding: 20px 0;
+    align-items: center;
 }
 
 .header-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 25px;
+    position: relative;
+    padding: 0 32px;
+    width: 100%;
+}
+
+.header-center-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin: 0 auto;
 }
 
 .header-logo {
+    margin-right: 18px;
     width: 60px;
     height: 60px;
     filter: drop-shadow(0 0 10px rgba(100, 181, 246, 0.5));
+    position: center;
 }
 
 .quantum-header h1 {
+    flex: 1;
+    text-align: center;
+    font-size: 2.2em;
     margin: 0;
-    font-size: 36px;
     font-weight: bold;
     background: linear-gradient(120deg, #64b5f6, #ba68c8);
     -webkit-background-clip: text;
@@ -543,28 +558,82 @@ canvas {
 }
 
 .about-features-button {
-    position: fixed;
+    position: absolute;
     left: 32px;
-    bottom: 32px;
+    top: 50%;
+    transform: translateY(-50%);
     background: linear-gradient(135deg, rgba(30,60,100,0.8), rgba(40,80,150,0.8));
     color: #fff;
-    padding: 14px 32px;
-    border-radius: 12px;
+    padding: 12px 24px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1.15em;
+    font-size: 1em;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 1001;
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    width: 200px;
+    text-align: center;
     text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    z-index: 1002;
 }
 
-.about-features-button:hover {
-    background: linear-gradient(135deg, rgba(40,80,150,0.9), rgba(60,120,200,0.9));
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+.contribute-button {
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, rgba(30,60,100,0.8), rgba(40,80,150,0.8));
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    width: 200px;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    z-index: 1002;
+}
+
+.about-features-button:hover,
+.contribute-button:hover {
+    background: linear-gradient(135deg, rgba(40,80,150,0.9), rgba(50,100,180,0.9));
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.quantum-action-button {
+  font-family: 'Orbitron', 'Share Tech Mono', 'Fira Mono', 'Consolas', 'Monaco', monospace;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #00eaff 20%, #a259ff 60%, #ff6ec4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 8px #00eaff, 0 0 16px #a259ff;
+  transition: filter 0.2s;
+}
+.quantum-action-button:focus, .quantum-action-button:hover {
+  filter: brightness(1.2) drop-shadow(0 0 6px #a259ff);
+}
+
+@media (max-width: 900px) {
+    .about-features-button,
+    .contribute-button {
+        width: 140px;
+        padding: 10px 10px;
+        font-size: 0.95em;
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+    .header-content {
+        padding: 0 8px;
+    }
 }
 
 /* Mobile Warning Overlay */
@@ -779,4 +848,99 @@ main {
     .quantum-header {
         display: none !important;
     }
+}
+
+/* Adjust carbon info position since buttons moved */
+.carbon-info {
+    position:fixed;
+    right: 32px;
+    bottom: 32px;
+    background: rgba(30, 60, 100, 0.7);
+    color: #fff;
+    padding: 18px 22px 14px 22px;
+    border-radius: 10px;
+    max-width: 320px;
+    z-index: 10;
+    font-size: 1.08em;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    width: 200px;
+    backdrop-filter: blur(5px);
+}
+
+/* Make both floating boxes consistent in size and position */
+.info-panel.floating-box,
+.contribute-panel.floating-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(15, 25, 45, 0.95);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    z-index: 1003; /* Ensure floating boxes are above buttons */
+}
+
+/* Consistent scrollbar styling for floating boxes */
+.info-panel.floating-box::-webkit-scrollbar,
+.contribute-panel.floating-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.info-panel.floating-box::-webkit-scrollbar-track,
+.contribute-panel.floating-box::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.info-panel.floating-box::-webkit-scrollbar-thumb,
+.contribute-panel.floating-box::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.quantum-header-heading {
+  text-align: center;
+  font-size: 2.4em;
+  font-weight: 700;
+  font-family: 'Orbitron', 'Share Tech Mono', 'Fira Mono', 'Consolas', 'Monaco', monospace;
+  background: linear-gradient(90deg, #00eaff 20%, #a259ff 60%, #ff6ec4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 18px #00eaff, 0 0 32px #a259ff, 0 0 2px #fff;
+  letter-spacing: 2.5px;
+  margin: 0 0 28px 0;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&display=swap');
+.property-label {
+  position: absolute;
+  min-width: 80px;
+  max-width: 180px;
+  background: rgba(30, 60, 100, 0.85);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  pointer-events: auto;
+  z-index: 1002;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.property-label {
+  pointer-events: none;
+}
+
+.property-label * {
+  pointer-events: none;
 }

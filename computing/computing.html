@@ -152,16 +152,7 @@
             box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37) !important;
         }
 
-        .galactic-gradient {
-            background: linear-gradient(90deg, #60a5fa 0%, #7c3aed 25%, #f472b6 55%, #facc15 85%, #fff 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 32px rgba(100, 200, 255, 0.28), 0 2px 8px #222;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-        }
+        
         #homeBtn {
             position: fixed;
             top: 24px;
@@ -184,6 +175,16 @@
             background: linear-gradient(90deg, #f472b6 0%, #7c3aed 60%, #2563eb 100%);
             transform: translateY(-2px) scale(1.06);
             box-shadow: 0 8px 32px 0 rgba(60,60,120,0.28);
+        }
+        .galactic-gradient {
+            background: linear-gradient(90deg, #60a5fa 0%, #7c3aed 25%, #f472b6 55%, #facc15 85%, #fff 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 32px rgba(100, 200, 255, 0.28), 0 2px 8px #222;
+            font-weight: 900;
+            letter-spacing: 1.5px;
         }
     </style>
 </head>
@@ -351,7 +352,8 @@
                 </div>
             </div>
         </div>
-    </div>    <div class="fixed top-8 right-8 flex space-x-6 z-50">
+    </div>    
+    <div class="fixed top-8 right-8 flex space-x-6 z-50">
         <button id="homeBtn" class="gate-btn bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-full">Home</button>
         <a href="../assets/guides/Quantum Voyager's Codex - Navigating Qubit Realms.pdf" download id="downloadGuideBtn" class="gate-btn bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-full">Download Guide</a>
     </div>
