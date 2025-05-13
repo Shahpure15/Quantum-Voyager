@@ -16,6 +16,7 @@ class AudioPlayer {
                         </svg>
                     </button>
                     <div class="flex-1 flex items-center gap-2">
+                        <span id="audio-song-title" class="text-white/80 text-xs truncate">Cornfield Chase | Interstellar | Hans Zimmer Music</span>
                         <span id="audio-current-time" class="text-white/60 text-xs w-8 font-mono">0:00</span>
                         <div class="audio-progress flex-1 h-1 bg-white/10 rounded-full cursor-pointer hover:bg-white/20 transition-colors">
                             <div id="audio-progress-bar" class="h-full bg-white rounded-full transition-all"></div>
