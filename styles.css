@@ -621,6 +621,119 @@ canvas {
     margin: 0 auto 1.5rem;
 }
 
+/* Audio bar styles */
+/* Audio player styles */
+#minimal-audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+#minimal-audio-player button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+#minimal-audio-player button:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#minimal-audio-player > div {
+  width: 100%;
+  max-width: 1536px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.audio-progress {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  overflow: hidden;
+}
+
+.audio-progress:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#audio-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: white;
+  border-radius: 2px;
+  transition: width 0.1s ease;
+  width: 0;
+}
+
+#audio-volume {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  outline: none;
+  transition: background 0.2s ease;
+}
+
+#audio-volume:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#audio-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+#audio-volume::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+#audio-current-time,
+#audio-duration {
+  font-family: monospace;
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.8);
+  min-width: 48px;
+  text-align: center;
+}
+
+/* Adjust spacing for elements above the audio bar */
+.iframe-container, 
+.content-container,
+main {
+  margin-bottom: 40px !important;
+  height: calc(100vh - 90px) !important;
+}
+
 @media (max-width: 600px) {
     .floating-box {
         width: 98vw;

@@ -34,19 +34,33 @@ class AudioPlayer {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', playerHtml);
-    }
-
-    initializeAudio() {
+    }    initializeAudio() {
         this.audio = new Audio('../assets/sounds/Interstellar.mp3');
         this.audio.loop = true;
         
-        // Start at 2 minutes (120 seconds)
         this.audio.addEventListener('loadedmetadata', () => {
-            this.audio.currentTime = 40;
+            // Get saved position or start at default position
+            const savedTime = localStorage.getItem('quantum-voyager-currentTime');
+            this.audio.currentTime = savedTime ? parseFloat(savedTime) : 40;
+            this.updateProgress();
+            this.updateDuration();
+        });
+        
+        // Save current time periodically
+        setInterval(() => {
+            if (this.audio && !this.audio.paused) {
+                localStorage.setItem('quantum-voyager-currentTime', this.audio.currentTime);
+            }
+        }, 1000);
+
+        // Save time before unloading/navigating
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('quantum-voyager-currentTime', this.audio.currentTime);
         });
     }
 
     loadSettings() {
+        // Load volume settings
         const savedVolume = localStorage.getItem('quantum-voyager-volume');
         if (savedVolume !== null) {
             this.audio.volume = parseFloat(savedVolume);
@@ -55,9 +69,19 @@ class AudioPlayer {
             this.audio.volume = 0.7;
         }
 
+        // Auto-play if it was playing before
         const isPlaying = localStorage.getItem('quantum-voyager-playing') === 'true';
         if (isPlaying) {
-            this.audio.play();
+            // Use a promise to handle autoplay restrictions
+            const playPromise = this.audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    if (error.name === "NotAllowedError") {
+                        // Auto-play was prevented, update the state
+                        localStorage.setItem('quantum-voyager-playing', 'false');
+                    }
+                });
+            }
         }
     }
 
@@ -129,22 +153,32 @@ class AudioPlayer {
         } else {
             this.audio.pause();
         }
-    }
-
-    updateProgress() {
-        const progress = (this.audio.currentTime / this.audio.duration) * 100;
-        document.getElementById('audio-progress-bar').style.width = `${progress}%`;
-        document.getElementById('audio-current-time').textContent = this.formatTime(this.audio.currentTime);
+    }    updateProgress() {
+        if (this.audio.duration) {
+            const progress = (this.audio.currentTime / this.audio.duration) * 100;
+            const progressBar = document.getElementById('audio-progress-bar');
+            const currentTimeDisplay = document.getElementById('audio-current-time');
+            if (progressBar && currentTimeDisplay) {
+                progressBar.style.width = `${progress}%`;
+                currentTimeDisplay.textContent = this.formatTime(this.audio.currentTime);
+            }
+        }
     }
 
     updateDuration() {
-        document.getElementById('audio-duration').textContent = this.formatTime(this.audio.duration);
+        const durationDisplay = document.getElementById('audio-duration');
+        if (durationDisplay && !isNaN(this.audio.duration)) {
+            durationDisplay.textContent = this.formatTime(this.audio.duration);
+        }
     }
 
     seek(event) {
         const rect = event.target.getBoundingClientRect();
         const pos = (event.clientX - rect.left) / rect.width;
-        this.audio.currentTime = pos * this.audio.duration;
+        if (!isNaN(this.audio.duration)) {
+            this.audio.currentTime = pos * this.audio.duration;
+            localStorage.setItem('quantum-voyager-currentTime', this.audio.currentTime);
+        }
     }
 
     setVolume(value) {

@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wave Interference Simulation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../styles.css">
   <style>
     html, body {
       margin: 0;
@@ -54,6 +56,10 @@
       width: 100%;
       height: 100%;
       border: none;
+    }    /* Adjust iframe container to account for audio bar */
+    .iframe-container {
+      width: 100vw;
+      height: calc(100vh - 90px);
     }
   </style>
 </head>
@@ -68,11 +74,12 @@
       src="https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_en.html"
       allowfullscreen>
     </iframe>
-  </div>  <!-- Required Scripts -->  <!-- Link the global styles for consistent audio player styling -->
+  </div>  <!-- Required Scripts -->
+  <script src="../common/audio-player.js"></script>
+  <!-- Link the global styles for consistent audio player styling -->
   <link rel="stylesheet" href="../styles.css">
 
-  <!-- Initialize audio player with consistent behavior -->
-  <script src="../common/audio-player.js"></script>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // Get current audio state from localStorage
@@ -100,5 +107,7 @@
       });
     });
   </script>
+  <!-- Initialize audio player with consistent behavior -->
+  <script src="../common/audio-player.js"></script>
 </body>
 </html>
