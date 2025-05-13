@@ -69,19 +69,24 @@ class AudioPlayer {
             this.audio.volume = 0.7;
         }
 
-        // Auto-play if it was playing before
-        const isPlaying = localStorage.getItem('quantum-voyager-playing') === 'true';
-        if (isPlaying) {
-            // Use a promise to handle autoplay restrictions
+        // Check if we're on index.html
+        const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+        const wasPlaying = localStorage.getItem('quantum-voyager-playing');
+
+        // Autoplay only on index.html if it's first visit or refreshed
+        if (isIndexPage && (wasPlaying === null || wasPlaying === 'true')) {
             const playPromise = this.audio.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
                     if (error.name === "NotAllowedError") {
-                        // Auto-play was prevented, update the state
-                        localStorage.setItem('quantum-voyager-playing', 'false');
+                        console.log("Auto-play was prevented. Please interact with the page to enable audio.");
                     }
                 });
             }
+            localStorage.setItem('quantum-voyager-playing', 'true');
+        } else if (wasPlaying === 'true') {
+            // On other pages, only play if it was playing before
+            this.audio.play().catch(() => {});
         }
     }
 
