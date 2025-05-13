@@ -803,6 +803,15 @@ main {
   height: calc(100vh - 90px) !important;
 }
 
+a[href*="github.com"], a[href*="CODE_OF_CONDUCT"], a.repo-link {
+  color: #3498db !important;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+a[href*="github.com"]:hover, a[href*="CODE_OF_CONDUCT"]:hover, a.repo-link:hover {
+  color: #2176bd !important;
+}
+
 @media (max-width: 600px) {
     .floating-box {
         width: 98vw;
