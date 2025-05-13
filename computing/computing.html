@@ -171,12 +171,30 @@
             transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
             outline: none;
         }
-        #homeBtn:hover, #homeBtn:focus {
+        #downloadGuideBtn {
+            
+            top: 24px;
+            left: 24px;
+            z-index: 99;
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 60%, #f472b6 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            box-shadow: 0 4px 24px 0 rgba(60,60,120,0.18);
+            padding: 12px 34px;
+            font-size: 1.15em;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            outline: none;
+        }
+        #homeBtn:hover, #homeBtn:focus, #downloadGuideBtn :hover, #downloadGuideBtn:focus {
             background: linear-gradient(90deg, #f472b6 0%, #7c3aed 60%, #2563eb 100%);
             transform: translateY(-2px) scale(1.06);
             box-shadow: 0 8px 32px 0 rgba(60,60,120,0.28);
         }
-        .galactic-gradient {
+        .galactic-gradient{
             background: linear-gradient(90deg, #60a5fa 0%, #7c3aed 25%, #f472b6 55%, #facc15 85%, #fff 100%);
             background-clip: text;
             -webkit-background-clip: text;
